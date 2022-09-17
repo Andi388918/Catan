@@ -74,7 +74,7 @@ static void add_labels(catan::size_type radius, catan::size_type rows, catan::si
                 {
                     graph[vertex(i * columns + j, graph)].type = catan::NodeType::settlement;
 
-                    // TODO: add road1
+                    // TODO: add road
                 }
             }
             else
