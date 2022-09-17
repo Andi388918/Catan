@@ -39,9 +39,16 @@ namespace catan
     {
     private:
         Graph graph;
+
         size_type radius;
         size_type rows;
         size_type columns;
+
+        std::vector<size_type> hex_tiles;
+        std::vector<Graph::edge_descriptor> road_places;
+        std::vector<size_type> settlement_places;
+
+        void init_nodes();
 
     public:
         CatanGraph(size_type radius);

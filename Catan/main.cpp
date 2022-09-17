@@ -17,6 +17,7 @@ namespace catan
 
 int main()
 {
+    /*
     auto start = std::chrono::system_clock::now();
 
     for (int i = 0; i < 1000; ++i)
@@ -24,6 +25,8 @@ int main()
 
     auto end = std::chrono::system_clock::now();
     
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    */
 
     catan::CatanGraph catan_graph(2);
 

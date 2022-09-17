@@ -43,15 +43,15 @@ static void add_diagonal_edges(catan::size_type rows, catan::size_type columns, 
     }
 }
 
-static void add_labels(catan::size_type radius, catan::size_type rows, catan::size_type columns, catan::Graph& graph)
+void catan::CatanGraph::init_nodes()
 {
-    for (catan::size_type i = 0; i < rows; ++i)
+    for (catan::size_type i {}; i < rows; ++i)
     {
-        int distance_to_center = std::abs(static_cast<int>(i - rows / 2));
-        int margin = std::ceil(.5 * (distance_to_center - 1));
-        bool odd_row = i % 2 != 0;
+        int distance_to_center { std::abs(static_cast<int>(i - rows / 2)) };
+        int margin { static_cast<int>(std::ceil(.5 * (distance_to_center - 1))) };
+        bool odd_row { i % 2 != 0 };
 
-        for (int j = 0; j < columns; ++j)
+        for (catan::size_type j {}; j < columns; ++j)
         {
             if (margin <= j && j < columns - margin)
             {
@@ -59,27 +59,48 @@ static void add_labels(catan::size_type radius, catan::size_type rows, catan::si
                 {
                     if (j % 2 != margin % 2)
                     {
-                        graph[vertex(i * columns + j, graph)].type = catan::NodeType::hex;
+                        /* this is a hex tile */
+
+                        graph[vertex(i * columns + j, graph)].type = catan::NodeType::hex;  /* define type of node */
+                        hex_tiles.push_back(i * columns + j);   /* store index of node */
+                        
                     }
                     else
                     {
-                        clear_vertex(i * columns + j, graph);
-                        add_edge((i - 1) * columns + j, (i + 1) * columns + j, graph);
-                        add_edge((i + 1) * columns + j, (i - 1) * columns + j, graph);
+                        /* this is a settlement place which has to be removed
+                           the settlement places above and below it have to be connected */
 
-                        // TODO: add road
+                        clear_vertex(i * columns + j, graph);
+
+                        catan::size_type upper_vertex { (i - 1) * columns + j };
+                        catan::size_type lower_vertex { (i + 1) * columns + j };
+
+                        add_edge(upper_vertex, lower_vertex, graph);
+                        add_edge(lower_vertex, upper_vertex, graph);
+
+                        /* this is a road place */
+
+                        road_places.push_back(edge(upper_vertex, lower_vertex, graph).first);    /* store index of edge */
                     }
                 }
                 else
                 {
-                    graph[vertex(i * columns + j, graph)].type = catan::NodeType::settlement;
+                    /* this is a settlement place */
 
-                    // TODO: add road
+                    graph[vertex(i * columns + j, graph)].type = catan::NodeType::settlement;   /* define type of node */
+                    settlement_places.push_back(i * columns + j);   /* store index of node */
+
+                    if (j + 1 < columns)
+                    {
+                        /* this is a road place */
+
+                        road_places.push_back(edge(i * columns + j, i * columns + j + 1, graph).first);    /* store index of edge */
+                    }
                 }
             }
             else
             {
-                clear_vertex(i * rows + j, graph);
+                clear_vertex(i * rows + j, graph); /* delete nodes outside of hex tile shaped board */
             }
         }
     }
@@ -91,5 +112,5 @@ catan::CatanGraph::CatanGraph(size_type radius) : radius { radius }, rows { 3 + 
 {
     copy::from_grid_graph(rows, columns, graph);
     add_diagonal_edges(rows, columns, graph);
-    add_labels(radius, rows, columns, graph);
+    init_nodes(); /* initialize node types and store their indices */
 }
