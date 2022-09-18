@@ -8,12 +8,13 @@
 #include <map>
 
 #include "hex_tile.h"
+#include "catan_graph.h"
 
 class Board
 {
 private:
-	std::vector<std::vector<HexTile>> hex_tiles;
+	catan::CatanGraph catan_graph;
 
 public:
-	Board();
+	Board(catan::size_type radius = 2);
 };

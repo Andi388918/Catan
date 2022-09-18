@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-Board::Board()
+Board::Board(catan::size_type radius) : catan_graph { radius }
 {
 	/* get resources and numbers that are used to initialize the random hex tiles */
 
@@ -21,8 +21,7 @@ Board::Board()
 	/* get user definition of where hex tiles are, what resources and numbers they have
 	   everything is random by default except the desert location (middle of the board) */
 
-	hex_tiles = Distributions::hex_tiles;
-
+	// hex_tiles = Distributions::hex_tiles;
 
 	/*
 	std::ranges::for_each(hex_tiles, [&hex_tile_resources, &hex_tile_numbers](auto& row)
