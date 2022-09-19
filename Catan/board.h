@@ -7,14 +7,13 @@
 #include <random>
 #include <map>
 
-#include "hex_tile.h"
-#include "catan_graph.h"
+#include "hex.h"
 
 class Board
 {
 private:
-	catan::CatanGraph catan_graph;
+	std::vector<Hex> hexes;
 
 public:
-	Board(catan::size_type radius = 2);
+	Board(std::vector<Hex> hex_tiles);
 };

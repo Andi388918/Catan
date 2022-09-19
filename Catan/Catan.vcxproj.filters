@@ -15,39 +15,39 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="catan.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="board.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="hex_tile.cpp">
+    <ClCompile Include="hex.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="hex_tile.h">
+    <ClCompile Include="hex.h">
       <Filter>Headerdateien</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="distributions.cpp">
+    <ClCompile Include="coords.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="catan_graph.cpp">
+    <ClCompile Include="intersection.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="catan.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="board.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="distributions.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="catan_graph.h">
+    <ClInclude Include="coords.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="intersection.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="path.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
