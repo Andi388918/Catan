@@ -17,5 +17,5 @@ private:
 	std::unordered_map<std::pair<Coords, Coords>, Path, PairHash> paths;
 
 public:
-	Board(std::vector<Hex> hex_tiles);
+	Board(const std::vector<Hex>& hex_tiles);
 };
