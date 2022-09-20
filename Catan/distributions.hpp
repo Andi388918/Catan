@@ -3,12 +3,12 @@
 
 #include <map>
 #include <vector>
+#include <algorithm>
 
 #include "hex.h"
 
 namespace Distributions
 {
-	
 	static const std::map<Hex::Type, int> hex_resources = {
 		{ Hex::Type::ore, 3 },
 		{ Hex::Type::brick, 3 },

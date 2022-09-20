@@ -1,20 +1,10 @@
 
 #include "board.h"
-#include "distributions.h"
-#include "hex.h"
-#include "intersection.h"
-#include "path.h"
+#include "distributions.hpp"
 
-#include <iostream>
-
-struct PairHash {
-public:
-	template <typename T, typename U>
-	std::size_t operator()(const std::pair<T, U>& x) const
-	{
-		return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
-	}
-};
+#include <vector>
+#include <algorithm>
+#include <random>
 
 Board::Board(std::vector<Hex> hexes) : hexes { hexes }
 {
@@ -29,65 +19,50 @@ Board::Board(std::vector<Hex> hexes) : hexes { hexes }
 	std::ranges::shuffle(hex_resources, rng);
 	std::ranges::shuffle(hex_numbers, rng);
 
-	std::unordered_map<Coords, Intersection> intersections;
+	/* build the graph */
 
-	std::ranges::for_each(hexes, [&intersections](const Hex& hex)
+	std::ranges::for_each(hexes, [this, &hex_resources, &hex_numbers](Hex& hex)
 		{
-			std::array<Coords, 6> offsets = hex.intersections();
+			/* everything is random by default except the desert location (middle of the board) */
 
-			std::ranges::for_each(offsets, [&intersections, &hex](const Coords& coords)
-				{
-					intersections[coords].add_hex(hex);
-				}
-			);
+			Coords coords { hex.get_coords() };
+
+			if (hex.is_random())
+			{
+				hex = Hex(hex_resources.back(), coords, hex_numbers.back());
+				hex_resources.pop_back();
+				hex_numbers.pop_back();
+			}
+
+			for (std::vector<Coords>::size_type i {}; i < intersection_offsets.size(); ++i)
+			{
+				/* circling the hex by adding the offsets to the hex coordinates and assigning this hex as reference to the resulting intersections */
+
+				Coords intersection_coords { coords + intersection_offsets.at(i) };
+				intersections.insert({ intersection_coords, Intersection { intersection_coords } });
+				Intersection& intersection { intersections[intersection_coords] };
+				intersection.add_hex(hex);
+
+				/* add paths */
+
+				/* when circling the hex, check if next intersection would be the start, otherwise just use the next offset to get the next intersection */
+
+				Coords next_intersection_coords { (i < intersection_offsets.size() - 1 ? intersection_offsets.at(i + 1) : intersection_offsets.at(0)) + coords };
+
+				intersections.insert({ next_intersection_coords, Intersection { next_intersection_coords } });
+				Intersection& next_intersection { intersections[next_intersection_coords] };
+
+				paths.insert({ { intersection_coords, next_intersection_coords }, Path { {intersection_coords, next_intersection_coords} } });
+				Path& path { paths[{ intersection_coords, next_intersection_coords }] };
+
+				/* add path to adjacent intersections and add these intersections to the path */
+
+				intersection.add_path(path);
+				next_intersection.add_path(path);
+
+				path.add_intersection(intersection);
+				path.add_intersection(next_intersection);
+			}
 		}
 	);
-
-	std::unordered_map<std::pair<Coords, Coords>, Path, PairHash> paths;
-
-	std::ranges::for_each(intersections, [&intersections, &paths](const auto& pair)
-		{
-			std::ranges::for_each(connected_corner_offsets, [&pair, &intersections, &paths](const auto& offset)
-				{
-					Coords coords { pair.first + offset };
-
-					if (intersections.find(coords) != std::end(intersections))
-					{
-						paths[{ coords, coords + offset}] = Path { { coords, coords + offset } };
-					}
-				}
-			);
-		}
-	);
-
-	std::ranges::for_each(paths, [&paths, &intersections](auto& pair)
-		{
-			Intersection& intersection1 { intersections[pair.first.first] };
-			Intersection& intersection2 { intersections[pair.first.second] };
-
-			intersection1.add_path(pair.second);
-			intersection2.add_path(pair.second);			
-		}
-	);
-
-	/* get user definition of where hex tiles are, what resources and numbers they have
-	   everything is random by default except the desert location (middle of the board) */
-
-	/*
-	std::ranges::for_each(hexes, [&hex_resources, &hex_numbers](auto& row)
-		{
-			std::ranges::for_each(row, [&hex_resources, &hex_numbers](auto& hex)
-				{
-					if (hex.is_random())
-					{
-						hex = HexTile(hex_resources.back(), hex_numbers.back());
-						hex_resources.pop_back();
-						hex_numbers.pop_back();
-					}
-				}
-			);
-		}
-	);
-	*/
-
 }

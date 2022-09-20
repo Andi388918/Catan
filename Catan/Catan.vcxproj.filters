@@ -33,12 +33,15 @@
     <ClCompile Include="intersection.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="path.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="board.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="distributions.h">
+    <ClInclude Include="distributions.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="coords.h">
@@ -48,6 +51,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="path.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="pair_hash.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

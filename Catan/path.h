@@ -1,10 +1,11 @@
 #pragma once
 
-#include <utility>
 #include <vector>
 
 #include "coords.h"
 #include "intersection.h"
+
+struct Intersection;
 
 struct Path
 {
@@ -14,4 +15,7 @@ struct Path
 	Path() {};
 	Path(std::pair<Coords, Coords> p) : coord_pair{ p } {}
 	
+	void add_intersection(const Intersection& intersection);
 };
+
+bool operator==(const Path& lhs, const Path& rhs);
