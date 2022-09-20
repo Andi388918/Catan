@@ -10,7 +10,9 @@ int main()
     auto start = std::chrono::system_clock::now();
 
     for (int i = 0; i < 1000; ++i)
+    {
         Board board { Distributions::hex_tiles };
+    }
 
     auto end = std::chrono::system_clock::now();
     

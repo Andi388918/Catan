@@ -12,10 +12,10 @@
 class Board
 {
 private:
-	std::vector<Hex> hexes;
+	std::unordered_map<Coords, Hex> hexes;
 	std::unordered_map<Coords, Intersection> intersections;
 	std::unordered_map<std::pair<Coords, Coords>, Path, PairHash> paths;
 
 public:
-	Board(const std::vector<Hex>& hex_tiles);
+	Board(const std::unordered_map<Coords, Hex>& hex_tiles);
 };

@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <random>
 
-Board::Board(const std::vector<Hex>& hexes) : hexes { hexes }
+Board::Board(const std::unordered_map<Coords, Hex>& hexes) : hexes { hexes }
 {
 	/* get resources and numbers that are used to initialize the random hex tiles */
 
@@ -21,15 +21,15 @@ Board::Board(const std::vector<Hex>& hexes) : hexes { hexes }
 
 	/* build the graph */
 
-	std::ranges::for_each(this->hexes, [this, &hex_resources, &hex_numbers](Hex& hex)
+	std::ranges::for_each(this->hexes, [this, &hex_resources, &hex_numbers](auto& pair)
 		{
 			/* everything is random by default except the desert location (middle of the board) */
 
-			Coords hex_coords { hex.get_coords() };
+			Coords hex_coords { pair.first };
 
-			if (hex.is_random())
+			if (pair.second.type == Hex::Type::random)
 			{
-				hex = Hex(hex_resources.back(), hex_coords, hex_numbers.back());
+				pair.second = Hex(hex_resources.back(), hex_numbers.back());
 				hex_resources.pop_back();
 				hex_numbers.pop_back();
 			}
