@@ -6,7 +6,7 @@
 #include "hex.h"
 #include "intersection.h"
 #include "path.h"
-#include "pair_hash.hpp"
+#include "pair_hash.h"
 #include "coords.h"
 
 class Board

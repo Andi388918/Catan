@@ -11,12 +11,9 @@ struct Path;
 struct Intersection
 {
 	Coords coords;
-	std::vector<std::reference_wrapper<const Hex>> hexes;
-	std::vector<std::reference_wrapper<const Path>> paths;
+	std::vector<Coords> hexes;
+	std::vector<std::pair<Coords, Coords>> paths;
 
-	void add_hex(const Hex& hex);
-	void add_path(const Path& path);
+	void add_hex(const Coords& hex_coords);
+	void add_path(const std::pair<Coords, Coords>& path_coords);
 };
-
-bool operator==(const std::reference_wrapper<const Hex>& lhs, const std::reference_wrapper<const Hex>& rhs);
-bool operator==(const Intersection& lhs, const Intersection& rhs);

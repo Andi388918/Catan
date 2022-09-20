@@ -148,6 +148,7 @@
     <ClCompile Include="hex.h" />
     <ClCompile Include="intersection.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pair_hash.cpp" />
     <ClCompile Include="path.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -155,7 +156,7 @@
     <ClInclude Include="coords.h" />
     <ClInclude Include="distributions.hpp" />
     <ClInclude Include="intersection.h" />
-    <ClInclude Include="pair_hash.hpp" />
+    <ClInclude Include="pair_hash.h" />
     <ClInclude Include="path.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

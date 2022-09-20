@@ -54,7 +54,7 @@ namespace Distributions
 	};
 
 	/* copy K V amount of times into vector for each K */
-	template<class K, class V>
+	template <class K, class V>
 	static std::vector<K> map_to_vector(const std::map<K, V>& m)
 	{
 		std::vector<K> v;

@@ -36,6 +36,9 @@
     <ClCompile Include="path.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="pair_hash.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="board.h">
@@ -53,7 +56,7 @@
     <ClInclude Include="path.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="pair_hash.hpp">
+    <ClInclude Include="pair_hash.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
