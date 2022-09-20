@@ -1,5 +1,5 @@
 
-#include "pair_hash.h"
+#include "pair.h"
 
 bool operator==(const std::pair<Coords, Coords>& lhs, const std::pair<Coords, Coords>& rhs)
 {
