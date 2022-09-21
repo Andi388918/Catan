@@ -1,6 +1,5 @@
 
-#include "board.h"
-#include "distributions.hpp"
+#include "game.h"
 
 #include <iostream>
 #include <chrono>
@@ -9,9 +8,9 @@ int main()
 {
     auto start = std::chrono::system_clock::now();
 
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 1000; ++i)
     {
-        Board board { Distributions::hex_tiles };
+        Game game { 3 };
     }
 
     auto end = std::chrono::system_clock::now();

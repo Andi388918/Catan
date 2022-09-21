@@ -12,7 +12,7 @@ class Path
 public:
 	Path() {}
 	
-	void add_intersection(const Coords& intersection_coords);
+	void add_intersection(const Coords& coords);
 
 private:
 	std::pair<Coords, Coords> coord_pair;

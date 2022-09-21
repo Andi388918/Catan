@@ -19,12 +19,11 @@ class Hex
 {
 public:
 	class InvalidHexNumber : public std::exception {};
-	enum class Type { Brick, Lumber, Wool, Grain, Ore, Desert, Lake, Random, Invalid };
+	enum class Type { Brick, Lumber, Wool, Grain, Ore, Desert, Lake, Random, Undefined };
 
-	Hex() : type { Type::Invalid } {}
-	Hex(Type type, std::vector<int> numbers = {});
+	Hex(Type type = Type::Undefined, std::vector<int> numbers = {});
 
-	bool is_random() { return type == Type::Random; }
+	bool is_undefined() { return type == Type::Undefined; }
 
 private:
 	Type type;

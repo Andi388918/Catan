@@ -144,8 +144,10 @@
   <ItemGroup>
     <ClCompile Include="board.cpp" />
     <ClCompile Include="coords.cpp" />
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="hex.cpp" />
     <ClCompile Include="hex.h" />
+    <ClCompile Include="hex_initializer.cpp" />
     <ClCompile Include="intersection.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pair.cpp" />
@@ -155,9 +157,12 @@
     <ClInclude Include="board.h" />
     <ClInclude Include="coords.h" />
     <ClInclude Include="distributions.hpp" />
+    <ClInclude Include="game.h" />
+    <ClInclude Include="hex_initializer.h" />
     <ClInclude Include="intersection.h" />
     <ClInclude Include="pair.h" />
     <ClInclude Include="path.h" />
+    <ClInclude Include="player.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

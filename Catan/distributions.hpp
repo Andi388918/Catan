@@ -30,27 +30,27 @@ namespace Distributions
 
 	/* user defined hex tile configuration */
 
-	static const std::unordered_map<Coords, Hex> hex_tiles
+	const std::unordered_map<Coords, Hex> hexes
 	{
-		{ Coords(4, -2), Hex(Hex::Type::Random) },
-		{ Coords(3, 0), Hex(Hex::Type::Random) },
-		{ Coords(2, 2), Hex(Hex::Type::Random) },
-		{ Coords(3, -3), Hex(Hex::Type::Random) },
-		{ Coords(2, -1), Hex(Hex::Type::Random) },
-		{ Coords(1, 1), Hex(Hex::Type::Random) },
-		{ Coords(0, 3), Hex(Hex::Type::Random) },
-		{ Coords(2, -4), Hex(Hex::Type::Random) },
-		{ Coords(1, -2), Hex(Hex::Type::Random) },
-		{ Coords(0, 0), Hex(Hex::Type::Desert, { 7 })},
-		{ Coords(-1, 2), Hex(Hex::Type::Random) },
-		{ Coords(-2, 4), Hex(Hex::Type::Random) },
-		{ Coords(0, -3), Hex(Hex::Type::Random) },
-		{ Coords(-1, -1), Hex(Hex::Type::Random) },
-		{ Coords(-2, 1), Hex(Hex::Type::Random) },
-		{ Coords(-3, 3), Hex(Hex::Type::Random) },
-		{ Coords(-2, -2), Hex(Hex::Type::Random) },
-		{ Coords(-3, 0), Hex(Hex::Type::Random) },
-		{ Coords(-4, 2), Hex(Hex::Type::Random) }
+		{ Coords { 4, -2 }, Hex {} },
+		{ Coords { 3, 0 }, Hex {} },
+		{ Coords { 2, 2 }, Hex {} },
+		{ Coords { 3, -3 }, Hex {} },
+		{ Coords { 2, -1 }, Hex {} },
+		{ Coords { 1, 1 }, Hex {} },
+		{ Coords { 0, 3 }, Hex {} },
+		{ Coords { 2, -4 }, Hex {} },
+		{ Coords { 1, -2 }, Hex {} },
+		{ Coords { 0, 0 }, Hex { Hex::Type::Desert, { 7 } } },
+		{ Coords { -1, 2 }, Hex {}},
+		{ Coords { -2, 4 }, Hex {}},
+		{ Coords { 0, -3 }, Hex {} },
+		{ Coords { -1, -1 }, Hex {}},
+		{ Coords { -2, 1 }, Hex {}},
+		{ Coords { -3, 3 }, Hex {}},
+		{ Coords { -2, -2 }, Hex {}},
+		{ Coords { -3, 0 }, Hex {}},
+		{ Coords { -4, 2 }, Hex {}}
 	};
 
 	/* copy K V amount of times into vector for each K */

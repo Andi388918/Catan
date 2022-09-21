@@ -13,8 +13,8 @@ class Intersection
 public:
 	Intersection() {};
 
-	void add_hex(const Coords& hex_coords);
-	void add_path(const std::pair<Coords, Coords>& path_coords);
+	void add_hex(const Coords& coords);
+	void add_path(const std::pair<Coords, Coords>& coord_pair);
 
 private:
 	std::vector<Coords> hexes;

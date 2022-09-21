@@ -39,6 +39,12 @@
     <ClCompile Include="pair.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="hex_initializer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="board.h">
@@ -57,6 +63,15 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="pair.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="hex_initializer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
