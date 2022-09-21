@@ -10,11 +10,11 @@
 namespace Distributions
 {
 	static const std::map<Hex::Type, int> hex_resources = {
-		{ Hex::Type::ore, 3 },
-		{ Hex::Type::brick, 3 },
-		{ Hex::Type::grain, 4 },
-		{ Hex::Type::lumber, 4 },
-		{ Hex::Type::wool, 4 } };
+		{ Hex::Type::Ore, 3 },
+		{ Hex::Type::Brick, 3 },
+		{ Hex::Type::Grain, 4 },
+		{ Hex::Type::Lumber, 4 },
+		{ Hex::Type::Wool, 4 } };
 	
 	static const std::map<std::vector<int>, int> hex_numbers = {
 		{ { 2 }, 1 },
@@ -32,25 +32,25 @@ namespace Distributions
 
 	static const std::unordered_map<Coords, Hex> hex_tiles
 	{
-		{ Coords(4, -2), Hex(Hex::Type::random) },
-		{ Coords(3, 0), Hex(Hex::Type::random) },
-		{ Coords(2, 2), Hex(Hex::Type::random) },
-		{ Coords(3, -3), Hex(Hex::Type::random) },
-		{ Coords(2, -1), Hex(Hex::Type::random) },
-		{ Coords(1, 1), Hex(Hex::Type::random) },
-		{ Coords(0, 3), Hex(Hex::Type::random) },
-		{ Coords(2, -4), Hex(Hex::Type::random) },
-		{ Coords(1, -2), Hex(Hex::Type::random) },
-		{ Coords(0, 0), Hex(Hex::Type::desert, { 7 })},
-		{ Coords(-1, 2), Hex(Hex::Type::random) },
-		{ Coords(-2, 4), Hex(Hex::Type::random) },
-		{ Coords(0, -3), Hex(Hex::Type::random) },
-		{ Coords(-1, -1), Hex(Hex::Type::random) },
-		{ Coords(-2, 1), Hex(Hex::Type::random) },
-		{ Coords(-3, 3), Hex(Hex::Type::random) },
-		{ Coords(-2, -2), Hex(Hex::Type::random) },
-		{ Coords(-3, 0), Hex(Hex::Type::random) },
-		{ Coords(-4, 2), Hex(Hex::Type::random) }
+		{ Coords(4, -2), Hex(Hex::Type::Random) },
+		{ Coords(3, 0), Hex(Hex::Type::Random) },
+		{ Coords(2, 2), Hex(Hex::Type::Random) },
+		{ Coords(3, -3), Hex(Hex::Type::Random) },
+		{ Coords(2, -1), Hex(Hex::Type::Random) },
+		{ Coords(1, 1), Hex(Hex::Type::Random) },
+		{ Coords(0, 3), Hex(Hex::Type::Random) },
+		{ Coords(2, -4), Hex(Hex::Type::Random) },
+		{ Coords(1, -2), Hex(Hex::Type::Random) },
+		{ Coords(0, 0), Hex(Hex::Type::Desert, { 7 })},
+		{ Coords(-1, 2), Hex(Hex::Type::Random) },
+		{ Coords(-2, 4), Hex(Hex::Type::Random) },
+		{ Coords(0, -3), Hex(Hex::Type::Random) },
+		{ Coords(-1, -1), Hex(Hex::Type::Random) },
+		{ Coords(-2, 1), Hex(Hex::Type::Random) },
+		{ Coords(-3, 3), Hex(Hex::Type::Random) },
+		{ Coords(-2, -2), Hex(Hex::Type::Random) },
+		{ Coords(-3, 0), Hex(Hex::Type::Random) },
+		{ Coords(-4, 2), Hex(Hex::Type::Random) }
 	};
 
 	/* copy K V amount of times into vector for each K */

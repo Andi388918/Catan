@@ -15,15 +15,18 @@ static const std::vector<Coords> intersection_offsets = {
 	Coords{1, -1}
 };
 
-struct Hex
+class Hex
 {
+public:
 	class InvalidHexNumber : public std::exception {};
-	enum class Type { brick, lumber, wool, grain, ore, desert, lake, random, invalid };
+	enum class Type { Brick, Lumber, Wool, Grain, Ore, Desert, Lake, Random, Invalid };
 
-	Type type;
-	Coords coords;
-	std::vector<int> numbers;
-
-	Hex() {}
+	Hex() : type { Type::Invalid } {}
 	Hex(Type type, std::vector<int> numbers = {});
+
+	bool is_random() { return type == Type::Random; }
+
+private:
+	Type type;
+	std::vector<int> numbers;
 };

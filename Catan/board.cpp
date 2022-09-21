@@ -23,13 +23,14 @@ Board::Board(const std::unordered_map<Coords, Hex>& hexes) : hexes { hexes }
 
 	std::ranges::for_each(this->hexes, [this, &hex_resources, &hex_numbers](auto& pair)
 		{
-			/* everything is random by default except the desert location (middle of the board) */
+			/* initialize hex */
 
 			Coords hex_coords { pair.first };
+			Hex& hex { pair.second };
 
-			if (pair.second.type == Hex::Type::random)
+			if (hex.is_random())
 			{
-				pair.second = Hex(hex_resources.back(), hex_numbers.back());
+				hex = Hex(hex_resources.back(), hex_numbers.back());
 				hex_resources.pop_back();
 				hex_numbers.pop_back();
 			}
@@ -39,30 +40,30 @@ Board::Board(const std::unordered_map<Coords, Hex>& hexes) : hexes { hexes }
 				/* circling the hex by adding the offsets to the hex coordinates and assigning this hex as reference to the resulting intersections */
 
 				Coords intersection_coords { hex_coords + intersection_offsets.at(i) };
-				intersections.insert({ intersection_coords, Intersection { intersection_coords } });
-				Intersection& intersection { intersections[intersection_coords] };
-				intersection.add_hex(hex_coords);
 
-				/* add paths */
+				/* this is a neighbouring hex of the intersection */
 
-				/* when circling the hex, check if next intersection would be the start, otherwise just use the next offset to get the next intersection */
+				intersections.insert({ intersection_coords, Intersection {} });
+				intersections[intersection_coords].add_hex(hex_coords);
+
+				/* add paths 
+				   when circling the hex, check if next intersection would be the start, otherwise just use the next offset to get the next intersection */
 
 				Coords next_intersection_coords { (i < intersection_offsets.size() - 1 ? intersection_offsets.at(i + 1) : intersection_offsets.at(0)) + hex_coords };
+				intersections.insert({ next_intersection_coords, Intersection {} });
 
-				intersections.insert({ next_intersection_coords, Intersection { next_intersection_coords } });
-				Intersection& next_intersection { intersections[next_intersection_coords] };
-
-				paths.insert({ { intersection_coords, next_intersection_coords }, Path { {intersection_coords, next_intersection_coords} } });
-				Path& path { paths[{ intersection_coords, next_intersection_coords }] };
+				std::pair<Coords, Coords> path_coords { intersection_coords, next_intersection_coords };
+				paths.insert({ path_coords, Path {} });
 
 				/* add path to adjacent intersections and add these intersections to the path */
 
-				intersection.add_path(path.coord_pair);
-				next_intersection.add_path(path.coord_pair);
+				intersections[intersection_coords].add_path(path_coords);
+				intersections[next_intersection_coords].add_path(path_coords);
 
-				path.add_intersection(intersection.coords);
-				path.add_intersection(next_intersection.coords);
+				paths[path_coords].add_intersection(intersection_coords);
+				paths[path_coords].add_intersection(next_intersection_coords);
 			}
 		}
 	);
+
 }
