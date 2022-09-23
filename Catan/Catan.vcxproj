@@ -142,27 +142,27 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="board.cpp" />
-    <ClCompile Include="coordinates.cpp" />
-    <ClCompile Include="game.cpp" />
-    <ClCompile Include="hex.cpp" />
-    <ClCompile Include="hex.h" />
-    <ClCompile Include="hex_initializer.cpp" />
-    <ClCompile Include="intersection.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="pair.cpp" />
-    <ClCompile Include="path.cpp" />
+    <ClCompile Include="src\board\board.cpp" />
+    <ClCompile Include="src\board\coordinates.cpp" />
+    <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\board\hex.cpp" />
+    <ClCompile Include="src\board\hex.h" />
+    <ClCompile Include="src\board\hex_initializer.cpp" />
+    <ClCompile Include="src\board\intersection.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\board\pair.cpp" />
+    <ClCompile Include="src\board\path.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="board.h" />
-    <ClInclude Include="coordinates.h" />
-    <ClInclude Include="distributions.hpp" />
-    <ClInclude Include="game.h" />
-    <ClInclude Include="hex_initializer.h" />
-    <ClInclude Include="intersection.h" />
-    <ClInclude Include="pair.h" />
-    <ClInclude Include="path.h" />
-    <ClInclude Include="player.h" />
+    <ClInclude Include="src\board\board.h" />
+    <ClInclude Include="src\board\coordinates.h" />
+    <ClInclude Include="src\board\distributions.hpp" />
+    <ClInclude Include="src\game.h" />
+    <ClInclude Include="src\board\hex_initializer.h" />
+    <ClInclude Include="src\board\intersection.h" />
+    <ClInclude Include="src\board\pair.h" />
+    <ClInclude Include="src\board\path.h" />
+    <ClInclude Include="src\player.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

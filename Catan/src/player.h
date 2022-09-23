@@ -1,6 +1,6 @@
 #pragma once
 
-#include "coordinates.h"
+#include "board/coordinates.h"
 #include <vector>
 
 class Player

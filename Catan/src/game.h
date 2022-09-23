@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "board.h"
-#include "distributions.hpp"
+#include "board/board.h"
+#include "board/distributions.hpp"
 #include "player.h"
 
 class Game
