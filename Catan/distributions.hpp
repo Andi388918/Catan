@@ -9,14 +9,17 @@
 
 namespace Distributions
 {
-	static const std::map<Hex::Type, int> hex_resources = {
+	static const std::map<Hex::Type, int> hex_resources = 
+	{
 		{ Hex::Type::Ore, 3 },
 		{ Hex::Type::Brick, 3 },
 		{ Hex::Type::Grain, 4 },
 		{ Hex::Type::Lumber, 4 },
-		{ Hex::Type::Wool, 4 } };
+		{ Hex::Type::Wool, 4 } 
+	};
 	
-	static const std::map<std::vector<int>, int> hex_numbers = {
+	static const std::map<std::vector<int>, int> hex_numbers = 
+	{
 		{ { 2 }, 1 },
 		{ { 3 }, 2 },
 		{ { 4 }, 2 },
@@ -26,31 +29,32 @@ namespace Distributions
 		{ { 9 }, 2 },
 		{ { 10 }, 2 },
 		{ { 11 }, 2 },
-		{ { 12 }, 1 } };
+		{ { 12 }, 1 } 
+	};
 
 	/* user defined hex tile configuration */
 
-	const std::unordered_map<Coords, Hex> hexes
+	const std::unordered_map<Coordinates, Hex> hexes
 	{
-		{ Coords { 4, -2 }, Hex {} },
-		{ Coords { 3, 0 }, Hex {} },
-		{ Coords { 2, 2 }, Hex {} },
-		{ Coords { 3, -3 }, Hex {} },
-		{ Coords { 2, -1 }, Hex {} },
-		{ Coords { 1, 1 }, Hex {} },
-		{ Coords { 0, 3 }, Hex {} },
-		{ Coords { 2, -4 }, Hex {} },
-		{ Coords { 1, -2 }, Hex {} },
-		{ Coords { 0, 0 }, Hex { Hex::Type::Desert, { 7 } } },
-		{ Coords { -1, 2 }, Hex {}},
-		{ Coords { -2, 4 }, Hex {}},
-		{ Coords { 0, -3 }, Hex {} },
-		{ Coords { -1, -1 }, Hex {}},
-		{ Coords { -2, 1 }, Hex {}},
-		{ Coords { -3, 3 }, Hex {}},
-		{ Coords { -2, -2 }, Hex {}},
-		{ Coords { -3, 0 }, Hex {}},
-		{ Coords { -4, 2 }, Hex {}}
+		{ Coordinates { 4, -2 }, Hex {} },
+		{ Coordinates { 3, 0 }, Hex {} },
+		{ Coordinates { 2, 2 }, Hex {} },
+		{ Coordinates { 3, -3 }, Hex {} },
+		{ Coordinates { 2, -1 }, Hex {} },
+		{ Coordinates { 1, 1 }, Hex {} },
+		{ Coordinates { 0, 3 }, Hex {} },
+		{ Coordinates { 2, -4 }, Hex {} },
+		{ Coordinates { 1, -2 }, Hex {} },
+		{ Coordinates { 0, 0 }, Hex { Hex::Type::Desert, { 7 } } },
+		{ Coordinates { -1, 2 }, Hex {}},
+		{ Coordinates { -2, 4 }, Hex {}},
+		{ Coordinates { 0, -3 }, Hex {} },
+		{ Coordinates { -1, -1 }, Hex {}},
+		{ Coordinates { -2, 1 }, Hex {}},
+		{ Coordinates { -3, 3 }, Hex {}},
+		{ Coordinates { -2, -2 }, Hex {}},
+		{ Coordinates { -3, 0 }, Hex {}},
+		{ Coordinates { -4, 2 }, Hex {}}
 	};
 
 	/* copy K V amount of times into vector for each K */

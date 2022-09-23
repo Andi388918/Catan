@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "coords.h"
+#include "Coordinates.h"
 
 struct PairHash {
 	template <class T, class U>
@@ -12,4 +12,5 @@ struct PairHash {
 	}
 };
 
-bool operator==(const std::pair<Coords, Coords>& lhs, const std::pair<Coords, Coords>& rhs);
+bool operator==(const std::pair<Coordinates, Coordinates>& lhs, const std::pair<Coordinates, Coordinates>& rhs);
+std::ostream& operator<<(std::ostream& os, const std::pair<Coordinates, Coordinates>& coordinates_pair);

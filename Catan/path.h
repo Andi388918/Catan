@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "coords.h"
+#include "coordinates.h"
 #include "intersection.h"
 
 class Intersection;
@@ -12,9 +12,8 @@ class Path
 public:
 	Path() {}
 	
-	void add_intersection(const Coords& coords);
+	void add_intersection(const Coordinates& coordinates);
 
 private:
-	std::pair<Coords, Coords> coord_pair;
-	std::vector<Coords> intersections;
+	std::vector<Coordinates> intersections;
 };

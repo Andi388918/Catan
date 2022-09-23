@@ -3,8 +3,8 @@
 
 #include <utility>
 
-void Path::add_intersection(const Coords& coords)
+void Path::add_intersection(const Coordinates& coordinates)
 {
-	if (std::find(std::begin(intersections), std::end(intersections), coords) != std::end(intersections))
-		intersections.push_back(coords);
+	if (std::find(std::begin(intersections), std::end(intersections), coordinates) != std::end(intersections))
+		intersections.push_back(coordinates);
 }

@@ -4,13 +4,15 @@
 #include <algorithm>
 #include <functional>
 
-void Intersection::add_hex(const Coords& coords)
+#include "pair.h"
+
+void Intersection::add_hex(const Coordinates& coordinates)
 {
-	hexes.push_back(coords);
+	hexes.push_back(coordinates);
 }
 
-void Intersection::add_path(const std::pair<Coords, Coords>& coord_pair)
+void Intersection::add_path(const std::pair<Coordinates, Coordinates>& coordinates_pair)
 {
-	if (std::find(std::begin(paths), std::end(paths), coord_pair) == std::end(paths))
-		paths.push_back(coord_pair);
+	if (std::find(std::begin(paths), std::end(paths), coordinates_pair) == std::end(paths))
+		paths.push_back(coordinates_pair);
 }

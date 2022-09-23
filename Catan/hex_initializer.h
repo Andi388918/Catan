@@ -2,10 +2,10 @@
 
 #include <map>
 
-#include "coords.h"
+#include "coordinates.h"
 #include "hex.h"
 
 struct HexInitializer
 {
-	void operator()(std::unordered_map<Coords, Hex>& hexes);
+	void operator()(std::unordered_map<Coordinates, Hex>& hexes);
 };

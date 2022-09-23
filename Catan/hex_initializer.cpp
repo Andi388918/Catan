@@ -5,7 +5,7 @@
 
 #include "distributions.hpp"
 
-void HexInitializer::operator()(std::unordered_map<Coords, Hex>& hexes)
+void HexInitializer::operator()(std::unordered_map<Coordinates, Hex>& hexes)
 {
 
 	std::vector<std::vector<int>> hex_numbers { Distributions::map_to_vector(Distributions::hex_numbers) };

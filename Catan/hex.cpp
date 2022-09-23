@@ -7,7 +7,7 @@ Hex::Hex(Type type, std::vector<int> numbers) : type { type }, numbers { numbers
 {
 	std::ranges::for_each(numbers, [](const auto& number) 
 		{
-			if (!(2 <= number <= 12)) throw InvalidHexNumber{}; 
+			if (number < 2 || number > 12) throw InvalidHexNumber{}; 
 		}
 	);
 }

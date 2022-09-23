@@ -27,7 +27,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="coords.cpp">
+    <ClCompile Include="coordinates.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="intersection.cpp">
@@ -53,7 +53,7 @@
     <ClInclude Include="distributions.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="coords.h">
+    <ClInclude Include="coordinates.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="intersection.h">

@@ -143,7 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="board.cpp" />
-    <ClCompile Include="coords.cpp" />
+    <ClCompile Include="coordinates.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="hex.cpp" />
     <ClCompile Include="hex.h" />
@@ -155,7 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="board.h" />
-    <ClInclude Include="coords.h" />
+    <ClInclude Include="coordinates.h" />
     <ClInclude Include="distributions.hpp" />
     <ClInclude Include="game.h" />
     <ClInclude Include="hex_initializer.h" />

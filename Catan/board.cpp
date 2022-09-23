@@ -4,44 +4,66 @@
 
 #include <vector>
 #include <algorithm>
-#include <random>
 
-Board::Board(const std::unordered_map<Coords, Hex>& hexes, HexInitializer hex_initializer) : hexes { hexes }
+Board::Board(const std::unordered_map<Coordinates, Hex>& hexes, HexInitializer hex_initializer) : hexes { hexes }
 {
 	hex_initializer(this->hexes);
 	make_graph();
 }
 
+void Board::connect_intersections(
+	const Coordinates& intersection_coordinates_a, 
+	const Coordinates& intersection_coordinates_b,
+	const std::pair<Coordinates, Coordinates>& path_coordinates
+)
+{
+	intersections[intersection_coordinates_a].add_path(path_coordinates);
+	intersections[intersection_coordinates_b].add_path(path_coordinates);
+
+	paths[path_coordinates].add_intersection(intersection_coordinates_a);
+	paths[path_coordinates].add_intersection(intersection_coordinates_b);
+}
+
 void Board::make_graph()
 {
-	std::ranges::for_each(hexes, [this](auto& pair)
+	std::ranges::for_each(hexes, [this](std::pair<const Coordinates, Hex>& pair)
 		{
-			Coords hex_coords{ pair.first };
+			Coordinates hex_coordinates { pair.first };
 
-			for (std::vector<Coords>::size_type i{}; i < intersection_offsets.size(); ++i)
+			/*
+				for each offset: add the offset to the hex coordinates
+				the resulting coordinates are the coordinates of an intersection
+				add this intersection to the intersections map
+				add the current hex coordinates to the intersection
+				connect this intersection to the next intersection
+				hex coordinates + next offset = next intersection
+				if there is no next offset, use the first element of the offset container, that is, connect last to first intersection
+			*/
+
+			for (std::vector<Coordinates>::size_type i {}; i < intersection_offsets.size(); ++i)
 			{
-				/* circling around the hex by adding the offset to the hex coordinates and assigning this hex as reference to the resulting intersection */
+				Coordinates intersection_coordinates { hex_coordinates + intersection_offsets.at(i) };
 
-				Coords intersection_coords{ hex_coords + intersection_offsets.at(i) };
-				intersections.insert({ intersection_coords, Intersection {} });
-				intersections[intersection_coords].add_hex(hex_coords);
+				intersections.insert({ intersection_coordinates, Intersection {} });
+				intersections[intersection_coordinates].add_hex(hex_coordinates);
 
-				/* add paths
-				   when circling the hex, check if next intersection would be the start, otherwise just use the next offset to get the next intersection */
+				Coordinates next_intersection_coordinates;
 
-				Coords next_intersection_coords{ (i < intersection_offsets.size() - 1 ? intersection_offsets.at(i + 1) : intersection_offsets.at(0)) + hex_coords };
-				intersections.insert({ next_intersection_coords, Intersection {} });
+				if (i != intersection_offsets.size() - 1)
+				{
+					next_intersection_coordinates = hex_coordinates + intersection_offsets.at(i + 1);
+				}
+				else
+				{
+					next_intersection_coordinates = hex_coordinates + intersection_offsets.at(0);
+				}
+				
+				intersections.insert({ next_intersection_coordinates, Intersection {} });
 
-				std::pair<Coords, Coords> path_coords{ intersection_coords, next_intersection_coords };
-				paths.insert({ path_coords, Path {} });
+				std::pair<Coordinates, Coordinates> path_coordinates { intersection_coordinates, next_intersection_coordinates };
+				paths.insert({ path_coordinates, Path {} });
 
-				/* add path to adjacent intersections and add these intersections to the path */
-
-				intersections[intersection_coords].add_path(path_coords);
-				intersections[next_intersection_coords].add_path(path_coords);
-
-				paths[path_coords].add_intersection(intersection_coords);
-				paths[path_coords].add_intersection(next_intersection_coords);
+				connect_intersections(intersection_coordinates, next_intersection_coordinates, path_coordinates);
 			}
 		}
 	);
