@@ -109,19 +109,3 @@ void Board::build_settlement(std::size_t intersection_index, std::size_t player_
 		}
 	);
 }
-
-std::vector<int> Board::get_unoccupied_intersection_indices() const
-{
-	std::vector<int> unoccupied_intersection_indices;
-
-	std::ranges::for_each(intersections, [this, i = std::size_t {}, &unoccupied_intersection_indices](const Coordinates& coordinates) mutable
-		{
-			if (!intersection_map.find(coordinates)->second.is_occupied())
-			{
-				unoccupied_intersection_indices.push_back(i++);
-			}
-		}
-	);
-
-	return unoccupied_intersection_indices;
-}
