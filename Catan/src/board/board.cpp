@@ -97,14 +97,14 @@ void Board::make_graph()
 
 void Board::build_settlement(std::size_t intersection_index, std::size_t player_index)
 {
-	Coordinates intersection_coordinates { intersections.at(intersection_index) };
-	Intersection& intersection { intersection_map[intersection_coordinates] };
+	Coordinates intersection_coordinates{ intersections.at(intersection_index) };
+	Intersection& intersection{ intersection_map[intersection_coordinates] };
 
-	intersection.add_building(Building { player_index, Building::Type::Settlement } );
+	intersection.add_building(Building{ player_index, Building::Type::Settlement });
 
 	std::ranges::for_each(intersection.get_neighbours(), [this](const Coordinates& neighbour_coordinates)
 		{
-			Intersection& neighbour { intersection_map[neighbour_coordinates] };
+			Intersection& neighbour{ intersection_map[neighbour_coordinates] };
 			neighbour.set_occupied();
 		}
 	);

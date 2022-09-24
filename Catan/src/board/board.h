@@ -23,7 +23,6 @@ private:
 	std::vector<std::pair<Coordinates, Coordinates>> paths;
 
 	void make_graph();
-	std::vector<int> get_unoccupied_intersection_indices() const;
 	void build_settlement(std::size_t intersection_index, std::size_t player_index);
 
 	void connect_intersections
