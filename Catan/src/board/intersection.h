@@ -12,17 +12,28 @@ class Path;
 class Intersection
 {
 public:
-	Intersection() {};
+	Intersection() : coordinates {}, index {}, occupied{} { }
+	Intersection(const Coordinates& coordinates) : coordinates{ coordinates }, index{}, occupied { false } {};
 
 	void add_hex(const Coordinates& coordinates);
-	void add_path(const std::pair<Coordinates, Coordinates>& coord_pair);
+	void add_neighbour(const Coordinates& coordinates);
 	void add_building(const Building& building);
 
-	bool has_building() { return building.has_value(); }
-	std::vector<std::pair<Coordinates, Coordinates>> get_paths() { return paths; }
+	bool has_building() const { return building.has_value(); }
+	const std::vector<Coordinates>& get_neighbours() const { return neighbours; }
+	const Coordinates& get_coordinates() const { return coordinates; }
+
+	void set_index(std::size_t index) { this->index = index; }
+	bool is_occupied() const { return occupied; }
+	void set_occupied() { this->occupied = true; }
 
 private:
+	Coordinates coordinates;
+	std::size_t index;
+
 	std::vector<Coordinates> hexes;
-	std::vector<std::pair<Coordinates, Coordinates>> paths;
+	std::vector<Coordinates> neighbours;
+
 	std::optional<Building> building;
+	bool occupied;
 };

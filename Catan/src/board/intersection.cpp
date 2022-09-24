@@ -11,13 +11,14 @@ void Intersection::add_hex(const Coordinates& coordinates)
 	hexes.push_back(coordinates);
 }
 
-void Intersection::add_path(const std::pair<Coordinates, Coordinates>& coordinates_pair)
+void Intersection::add_neighbour(const Coordinates& coordinates)
 {
-	if (std::find(std::begin(paths), std::end(paths), coordinates_pair) == std::end(paths))
-		paths.push_back(coordinates_pair);
+	if (std::find(std::begin(neighbours), std::end(neighbours), coordinates) == std::end(neighbours))
+		neighbours.push_back(coordinates);
 }
 
 void Intersection::add_building(const Building& building) 
 { 
-	this->building = building; 
+	this->building = building;
+	set_occupied();
 }
