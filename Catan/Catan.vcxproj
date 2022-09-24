@@ -155,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\board\board.h" />
+    <ClInclude Include="src\board\building.h" />
     <ClInclude Include="src\board\coordinates.h" />
     <ClInclude Include="src\board\distributions.hpp" />
     <ClInclude Include="src\game.h" />

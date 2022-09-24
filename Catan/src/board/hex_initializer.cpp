@@ -7,11 +7,10 @@
 
 void HexInitializer::operator()(std::unordered_map<Coordinates, Hex>& hexes)
 {
+	std::vector<std::vector<int>> hex_numbers { Distributions::map_to_vector_key_times_value(Distributions::hex_numbers) };
+	std::vector<Hex::Type> hex_resources { Distributions::map_to_vector_key_times_value(Distributions::hex_resources) };
 
-	std::vector<std::vector<int>> hex_numbers { Distributions::map_to_vector(Distributions::hex_numbers) };
-	std::vector<Hex::Type> hex_resources { Distributions::map_to_vector(Distributions::hex_resources) };
-
-	assert(hexes.size() - 1 == hex_numbers.size() == hex_resources.size());
+	assert(hexes.size() - 1 == hex_numbers.size() && hexes.size() - 1 == hex_resources.size());
 
 	/* randomly shuffle resources and numbers */
 

@@ -58,10 +58,10 @@ namespace Distributions
 	};
 
 	/* copy K V amount of times into vector for each K */
-	template <class K, class V>
-	static std::vector<K> map_to_vector(const std::map<K, V>& m)
+	template <class Key, class T>
+	static std::vector<Key> map_to_vector_key_times_value(const std::map<Key, T>& m)
 	{
-		std::vector<K> v;
+		std::vector<Key> v;
 
 		std::ranges::for_each(m, [&v](const auto& pair) {
 			for (int i{}; i < pair.second; ++i)

@@ -5,10 +5,22 @@
 #include <vector>
 #include <algorithm>
 
-Board::Board(const std::unordered_map<Coordinates, Hex>& hexes, HexInitializer hex_initializer) : hexes { hexes }
+template<class Key, class T, class Hash = std::hash<Key>>
+void copy_map_values_to_vector(const std::unordered_map<Key, T, Hash>& map, std::vector<T>& vector)
 {
-	hex_initializer(this->hexes);
+	vector.reserve(map.size());
+	std::transform(std::begin(map), std::end(map), std::back_inserter(vector),
+		[](auto& pair) { return pair.second; });
+}
+
+Board::Board(const std::unordered_map<Coordinates, Hex>& hex_map, HexInitializer hex_initializer) : hex_map { hex_map }
+{
+	hex_initializer(this->hex_map);
 	make_graph();
+
+	copy_map_values_to_vector(hex_map, hexes);
+	copy_map_values_to_vector(intersection_map, intersections);
+	copy_map_values_to_vector(path_map, paths);
 }
 
 void Board::connect_intersections(
@@ -17,16 +29,20 @@ void Board::connect_intersections(
 	const std::pair<Coordinates, Coordinates>& path_coordinates
 )
 {
-	intersections[intersection_coordinates_a].add_path(path_coordinates);
-	intersections[intersection_coordinates_b].add_path(path_coordinates);
+	intersection_map[intersection_coordinates_a].add_path(path_coordinates);
+	intersection_map[intersection_coordinates_b].add_path(path_coordinates);
 
-	paths[path_coordinates].add_intersection(intersection_coordinates_a);
-	paths[path_coordinates].add_intersection(intersection_coordinates_b);
+	path_map[path_coordinates].add_intersection(intersection_coordinates_a);
+	path_map[path_coordinates].add_intersection(intersection_coordinates_b);
+}
+
+void Board::build_settlement(std::size_t player_index, std::size_t intersection_index, bool connected_to_road)
+{
 }
 
 void Board::make_graph()
 {
-	std::ranges::for_each(hexes, [this](std::pair<const Coordinates, Hex>& pair)
+	std::ranges::for_each(hex_map, [this](std::pair<const Coordinates, Hex>& pair)
 		{
 			Coordinates hex_coordinates { pair.first };
 
@@ -44,8 +60,8 @@ void Board::make_graph()
 			{
 				Coordinates intersection_coordinates { hex_coordinates + intersection_offsets.at(i) };
 
-				intersections.insert({ intersection_coordinates, Intersection {} });
-				intersections[intersection_coordinates].add_hex(hex_coordinates);
+				intersection_map.insert({ intersection_coordinates, Intersection {} });
+				intersection_map[intersection_coordinates].add_hex(hex_coordinates);
 
 				Coordinates next_intersection_coordinates;
 
@@ -58,12 +74,13 @@ void Board::make_graph()
 					next_intersection_coordinates = hex_coordinates + intersection_offsets.at(0);
 				}
 				
-				intersections.insert({ next_intersection_coordinates, Intersection {} });
+				intersection_map.insert({ next_intersection_coordinates, Intersection {} });
 
 				std::pair<Coordinates, Coordinates> path_coordinates { intersection_coordinates, next_intersection_coordinates };
-				paths.insert({ path_coordinates, Path {} });
+				path_map.insert({ path_coordinates, Path {} });
 
 				connect_intersections(intersection_coordinates, next_intersection_coordinates, path_coordinates);
+
 			}
 		}
 	);
