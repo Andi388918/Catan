@@ -102,20 +102,16 @@ void Board::make_graph(
 	);
 }
 
-/*
 void Board::build_settlement(std::size_t intersection_index, std::size_t player_index)
 {
-	auto pair { std::ranges::find_if(intersection_map, [intersection_index](const auto& pair) { return pair.second.get_index() == intersection_index; }) };
-
-	Intersection& intersection { pair->second };
+	Intersection& intersection { intersections.at(intersection_index) };
 
 	intersection.add_building(Building { player_index, Building::Type::Settlement } );
 
-	std::ranges::for_each(intersection.get_neighbours(), [this](const Coordinates& neighbour_coordinates)
+	std::ranges::for_each(intersection.get_neighbours(), [this](std::size_t neighbour_index)
 		{
-			Intersection& neighbour { intersection_map[neighbour_coordinates] };
+			Intersection& neighbour { intersections.at(neighbour_index) };
 			neighbour.set_occupied();
 		}
 	);
 }
-*/
