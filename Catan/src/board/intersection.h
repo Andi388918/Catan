@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <set>
 
 #include "hex.h"
 #include "coordinates.h"
@@ -13,17 +14,18 @@ class Intersection
 {
 public:
 	Intersection() : coordinates {}, index {}, occupied{} { }
-	Intersection(const Coordinates& coordinates) : coordinates{ coordinates }, index{}, occupied { false } {};
+	Intersection(const Coordinates& coordinates, std::size_t index) : coordinates { coordinates }, index { index }, occupied { false } {};
 
-	void add_hex(const Coordinates& coordinates);
-	void add_neighbour(const Coordinates& coordinates);
+	void add_hex(std::size_t hex_index);
+	void add_neighbour(std::size_t neigbour_index);
+	void add_path(std::size_t path_index);
 	void add_building(const Building& building);
 
 	bool has_building() const { return building.has_value(); }
-	const std::vector<Coordinates>& get_neighbours() const { return neighbours; }
+	const std::set<std::size_t>& get_neighbours() const { return neighbours; }
 	const Coordinates& get_coordinates() const { return coordinates; }
 
-	void set_index(std::size_t index) { this->index = index; }
+	std::size_t get_index() const { return index; }
 	bool is_occupied() const { return occupied; }
 	void set_occupied() { this->occupied = true; }
 
@@ -31,8 +33,9 @@ private:
 	Coordinates coordinates;
 	std::size_t index;
 
-	std::vector<Coordinates> hexes;
-	std::vector<Coordinates> neighbours;
+	std::set<std::size_t> hexes;
+	std::set<std::size_t> neighbours;
+	std::set<std::size_t> paths;
 
 	std::optional<Building> building;
 	bool occupied;

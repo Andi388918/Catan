@@ -6,52 +6,59 @@
 #include <algorithm>
 
 template<class Key, class T, class Hash = std::hash<Key>>
-void copy_map_keys_to_vector(const std::unordered_map<Key, T, Hash>& map, std::vector<Key>& vector)
+void copy_values_from_map(const std::unordered_map<Key, T, Hash>& map, std::vector<T>& vector)
 {
-	vector.reserve(map.size());
-	std::transform(std::begin(map), std::end(map), std::back_inserter(vector),
-		[](auto& pair) { return pair.first; });
-}
-
-void init_intersection_indices(std::unordered_map<Coordinates, Intersection>& intersection_map)
-{
-	std::ranges::for_each(intersection_map, 
-		[i = std::size_t {}](auto& pair) mutable 
-		{
-			pair.second.set_index(i++);
-		}
+	vector.resize(map.size());
+	std::transform(map.begin(), map.end(), std::back_inserter(vector),
+		[](auto& pair) { return pair.second; }
 	);
 }
 
-Board::Board(const std::unordered_map<Coordinates, Hex>& hex_map, HexInitializer hex_initializer) : hex_map { hex_map }
+Board::Board(const std::unordered_map<Coordinates, Hex>& hex_map_, HexInitializer hex_initializer)
 {
-	hex_initializer(this->hex_map);
-	make_graph();
-	init_intersection_indices(intersection_map);
+	std::unordered_map<Coordinates, Hex> hex_map { hex_map_ };
+	std::unordered_map<Coordinates, Intersection> intersection_map;
+	std::unordered_map<std::pair<Coordinates, Coordinates>, Path, PairHash> path_map;
+	
+	hex_initializer(hex_map);
+	make_graph(hex_map, intersection_map, path_map);
 
-	copy_map_keys_to_vector(this->hex_map, hexes);
-	copy_map_keys_to_vector(intersection_map, intersections);
-	copy_map_keys_to_vector(path_map, paths);
+	copy_values_from_map(intersection_map, intersections);
+	copy_values_from_map(path_map, paths);
 }
 
-void Board::connect_intersections(
+void connect_intersections(
 	const Coordinates& intersection_coordinates_a, 
 	const Coordinates& intersection_coordinates_b,
-	const std::pair<Coordinates, Coordinates>& path_coordinates
+	const std::pair<Coordinates, Coordinates>& path_coordinates,
+	std::unordered_map<Coordinates, Intersection>& intersection_map,
+	std::unordered_map<std::pair<Coordinates, Coordinates>, Path, PairHash>& path_map
 )
 {
-	intersection_map[intersection_coordinates_a].add_neighbour(intersection_coordinates_b);
-	intersection_map[intersection_coordinates_b].add_neighbour(intersection_coordinates_a);
+	std::size_t intersection_index_a { intersection_map[intersection_coordinates_a].get_index() };
+	std::size_t intersection_index_b { intersection_map[intersection_coordinates_b].get_index() };
+	std::size_t path_index { path_map[path_coordinates].get_index() };
 
-	path_map[path_coordinates].add_intersection(intersection_coordinates_a);
-	path_map[path_coordinates].add_intersection(intersection_coordinates_b);
+	intersection_map[intersection_coordinates_a].add_neighbour(intersection_index_b);
+	intersection_map[intersection_coordinates_b].add_neighbour(intersection_index_a);
+
+	intersection_map[intersection_coordinates_a].add_path(path_index);
+	intersection_map[intersection_coordinates_b].add_path(path_index);
+
+	path_map[path_coordinates].add_intersection(intersection_index_a);
+	path_map[path_coordinates].add_intersection(intersection_index_b);
 }
 
-void Board::make_graph()
+void Board::make_graph(
+	std::unordered_map<Coordinates, Hex>& hex_map, 
+	std::unordered_map<Coordinates, Intersection>& intersection_map,
+	std::unordered_map<std::pair<Coordinates, Coordinates>, Path, PairHash>& path_map
+)
 {
-	std::size_t intersection_index;
+	std::size_t intersection_index {};
+	std::size_t path_index {};
 
-	std::ranges::for_each(this->hex_map, [this, &intersection_index](std::pair<const Coordinates, Hex>& pair)
+	std::ranges::for_each(hex_map, [this, &intersection_map, &path_map, &intersection_index, &path_index, hex_index = std::size_t {}](std::pair<const Coordinates, Hex>& pair) mutable
 		{
 			Coordinates hex_coordinates { pair.first };
 
@@ -68,44 +75,45 @@ void Board::make_graph()
 			for (std::vector<Coordinates>::size_type i {}; i < intersection_offsets.size(); ++i)
 			{
 				Coordinates intersection_coordinates { hex_coordinates + intersection_offsets.at(i) };
+				auto intersection_insertion_result { intersection_map.insert({ intersection_coordinates, Intersection { intersection_coordinates, intersection_index } }) };
+				if (intersection_insertion_result.second) ++intersection_index;
 
-				intersection_map.insert({ intersection_coordinates, Intersection { intersection_coordinates } });
-				intersection_map[intersection_coordinates].add_hex(hex_coordinates);
+				intersection_map[intersection_coordinates].add_hex(hex_index);
 
-				Coordinates next_intersection_coordinates;
-
-				if (i != intersection_offsets.size() - 1)
-				{
-					next_intersection_coordinates = hex_coordinates + intersection_offsets.at(i + 1);
-				}
-				else
-				{
-					next_intersection_coordinates = hex_coordinates + intersection_offsets.at(0);
-				}
-				
-				intersection_map.insert({ next_intersection_coordinates, Intersection { next_intersection_coordinates } });
+				Coordinates next_intersection_coordinates { (i != intersection_offsets.size() - 1 ? intersection_offsets.at(i + 1) : intersection_offsets.at(0)) + hex_coordinates };
+				intersection_insertion_result = intersection_map.insert({ next_intersection_coordinates, Intersection { next_intersection_coordinates, intersection_index } });
+				if (intersection_insertion_result.second) ++intersection_index;
 
 				std::pair<Coordinates, Coordinates> path_coordinates { intersection_coordinates, next_intersection_coordinates };
-				path_map.insert({ path_coordinates, Path {} });
+				auto path_insertion_result { path_map.insert({ path_coordinates, Path { path_index } }) };
+				if (path_insertion_result.second) ++path_index;
 
-				connect_intersections(intersection_coordinates, next_intersection_coordinates, path_coordinates);
-
+				connect_intersections(
+					intersection_coordinates,
+					next_intersection_coordinates,
+					path_coordinates,
+					intersection_map,
+					path_map
+				);
 			}
 		}
 	);
 }
 
+/*
 void Board::build_settlement(std::size_t intersection_index, std::size_t player_index)
 {
-	Coordinates intersection_coordinates{ intersections.at(intersection_index) };
-	Intersection& intersection{ intersection_map[intersection_coordinates] };
+	auto pair { std::ranges::find_if(intersection_map, [intersection_index](const auto& pair) { return pair.second.get_index() == intersection_index; }) };
 
-	intersection.add_building(Building{ player_index, Building::Type::Settlement });
+	Intersection& intersection { pair->second };
+
+	intersection.add_building(Building { player_index, Building::Type::Settlement } );
 
 	std::ranges::for_each(intersection.get_neighbours(), [this](const Coordinates& neighbour_coordinates)
 		{
-			Intersection& neighbour{ intersection_map[neighbour_coordinates] };
+			Intersection& neighbour { intersection_map[neighbour_coordinates] };
 			neighbour.set_occupied();
 		}
 	);
 }
+*/
