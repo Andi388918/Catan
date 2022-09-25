@@ -9,7 +9,7 @@
 template<class Key, class T, class Hash = std::hash<Key>>
 void copy_values_from_map(const std::unordered_map<Key, T, Hash>& map, std::vector<T>& vector)
 {
-	vector.resize(map.size());
+	vector.reserve(map.size());
 	std::transform(map.begin(), map.end(), std::back_inserter(vector),
 		[](auto& pair) { return pair.second; }
 	);
@@ -27,14 +27,6 @@ Board::Board(const std::unordered_map<Coordinates, Hex>& hex_map_, HexInitialize
 	copy_values_from_map(intersection_map, intersections);
 	copy_values_from_map(path_map, paths);
 	copy_values_from_map(hex_map, hexes);
-	
-	std::cout << intersections.size() << std::endl;
-
-	std::ranges::for_each(intersections, [](const auto& intersection)
-		{
-			std::cout << intersection.get_neighbours().size() << std::endl;
-		}
-	);
 }
 
 void connect_intersections(

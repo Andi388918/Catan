@@ -13,7 +13,7 @@ class Path;
 class Intersection
 {
 public:
-	Intersection() : coordinates {}, index {}, occupied{} { }
+	Intersection() : coordinates {}, index {}, occupied {} { }
 	Intersection(const Coordinates& coordinates, std::size_t index) : coordinates { coordinates }, index { index }, occupied { false } {};
 
 	void add_hex(std::size_t hex_index);
@@ -21,10 +21,11 @@ public:
 	void add_path(std::size_t path_index);
 	void add_building(const Building& building);
 
-	bool has_building() const { return building.has_value(); }
-	const std::set<std::size_t>& get_neighbours() const { return neighbours; }
 	const Coordinates& get_coordinates() const { return coordinates; }
+	const std::set<std::size_t>& get_neighbours() const { return neighbours; }
+	const std::set<std::size_t>& get_paths() const { return paths; }
 
+	bool has_building() const { return building.has_value(); }
 	std::size_t get_index() const { return index; }
 	bool is_occupied() const { return occupied; }
 	void set_occupied() { this->occupied = true; }

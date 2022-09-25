@@ -6,12 +6,11 @@
 
 int main()
 {
-
     auto start = std::chrono::system_clock::now();
 
     for (int i {}; i < 1; ++i)
     {
-        Game game { 3 };
+        Game game{ 3 };
     }
 
     auto end = std::chrono::system_clock::now();
