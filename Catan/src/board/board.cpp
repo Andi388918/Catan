@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 template<class Key, class T, class Hash = std::hash<Key>>
 void copy_values_from_map(const std::unordered_map<Key, T, Hash>& map, std::vector<T>& vector)
@@ -25,6 +26,15 @@ Board::Board(const std::unordered_map<Coordinates, Hex>& hex_map_, HexInitialize
 
 	copy_values_from_map(intersection_map, intersections);
 	copy_values_from_map(path_map, paths);
+	copy_values_from_map(hex_map, hexes);
+	
+	std::cout << intersections.size() << std::endl;
+
+	std::ranges::for_each(intersections, [](const auto& intersection)
+		{
+			std::cout << intersection.get_neighbours().size() << std::endl;
+		}
+	);
 }
 
 void connect_intersections(
@@ -78,7 +88,7 @@ void Board::make_graph(
 				auto intersection_insertion_result { intersection_map.insert({ intersection_coordinates, Intersection { intersection_coordinates, intersection_index } }) };
 				if (intersection_insertion_result.second) ++intersection_index;
 
-				intersection_map[intersection_coordinates].add_hex(hex_index);
+				intersection_map[intersection_coordinates].add_hex(hex_index++);
 
 				Coordinates next_intersection_coordinates { (i != intersection_offsets.size() - 1 ? intersection_offsets.at(i + 1) : intersection_offsets.at(0)) + hex_coordinates };
 				intersection_insertion_result = intersection_map.insert({ next_intersection_coordinates, Intersection { next_intersection_coordinates, intersection_index } });

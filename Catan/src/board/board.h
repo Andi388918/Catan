@@ -16,6 +16,7 @@ class Board
 private:
 	std::vector<Intersection> intersections;
 	std::vector<Path> paths;
+	std::vector<Hex> hexes;
 
 	void make_graph(
 		std::unordered_map<Coordinates, Hex>& hex_map,
