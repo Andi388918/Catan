@@ -151,12 +151,18 @@ void Board::build_settlement(std::size_t intersection_index, std::size_t player_
 {
 	Intersection& intersection { intersections.at(intersection_index) };
 	intersection.add_settlement(player_index);
-	buildable_settlements.at(intersection_index).empty();
+
+	std::fill(buildable_settlements.at(intersection_index).begin(),
+		buildable_settlements.at(intersection_index).end(),
+		false);
 
 	std::ranges::for_each(intersection.get_neighboring_intersections(), [this, &player_index](std::size_t neighboring_intersection_index)
 		{
 			intersections.at(neighboring_intersection_index).set_occupied();
-			buildable_settlements.at(neighboring_intersection_index).empty();
+			
+			std::fill(buildable_settlements.at(neighboring_intersection_index).begin(), 
+				buildable_settlements.at(neighboring_intersection_index).end(), 
+				false);
 		}
 	);
 
@@ -167,7 +173,10 @@ void Board::build_road(std::size_t path_index, std::size_t player_index)
 {
 	Path& path { paths.at(path_index) };
 	path.add_road(player_index);
-	buildable_roads.at(path_index).empty();
+
+	std::fill(buildable_settlements.at(path_index).begin(),
+		buildable_settlements.at(path_index).end(),
+		false);
 
 	add_to_buildable_if_not_occupied(path.get_neighboring_intersections(), buildable_settlements, intersections, player_index);
 	add_to_buildable_if_not_occupied(path.get_neighboring_paths(), buildable_roads, paths, player_index);
