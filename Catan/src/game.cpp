@@ -14,5 +14,5 @@ std::vector<int> Game::get_legal_actions() const
 void Game::increase_player_index()
 {
 	++current_player_index;
-	if (current_player_index == players.size()) current_player_index = 0;
+	current_player_index %= players.size();
 }

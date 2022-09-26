@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <iostream>
 
+/* helper functions */
+
 template<class Key, class T, class Hash = std::hash<Key>>
 void copy_values_from_map(const std::unordered_map<Key, T, Hash>& map, std::vector<T>& vector)
 {
@@ -15,7 +17,48 @@ void copy_values_from_map(const std::unordered_map<Key, T, Hash>& map, std::vect
 	);
 }
 
-Board::Board(const std::unordered_map<Coordinates, Hex>& hex_map_, HexInitializer hex_initializer)
+template<class ThingsToAdd, class BuildableContainer, class LookupContainer>
+void add_to_buildable_if_not_occupied(ThingsToAdd& things_to_add, BuildableContainer& buildable_container, LookupContainer& lookup_container, std::size_t player_index)
+{
+	std::ranges::for_each(things_to_add, [&buildable_container, &lookup_container, &player_index](std::size_t neighbor_index)
+		{
+			if (!lookup_container.at(neighbor_index).is_occupied())
+			{
+				buildable_container.at(neighbor_index).at(player_index) = true;
+			}
+		}
+	);
+}
+
+void connect_intersections(
+	const Coordinates& intersection_coordinates_a,
+	const Coordinates& intersection_coordinates_b,
+	const std::pair<Coordinates, Coordinates>& path_coordinates,
+	std::unordered_map<Coordinates, Intersection>& intersection_map,
+	std::unordered_map<std::pair<Coordinates, Coordinates>, Path, PairHash>& path_map
+)
+{
+	Intersection& intersection_a{ intersection_map[intersection_coordinates_a] };
+	Intersection& intersection_b{ intersection_map[intersection_coordinates_b] };
+	Path& path{ path_map[path_coordinates] };
+
+	std::size_t intersection_index_a{ intersection_a.get_index() };
+	std::size_t intersection_index_b{ intersection_b.get_index() };
+	std::size_t path_index{ path.get_index() };
+
+	intersection_a.add_neighboring_intersection(intersection_index_b);
+	intersection_b.add_neighboring_intersection(intersection_index_a);
+
+	intersection_a.add_neighboring_path(path_index);
+	intersection_b.add_neighboring_path(path_index);
+
+	path.add_neighboring_intersection(intersection_index_a);
+	path.add_neighboring_intersection(intersection_index_b);
+}
+
+/* member functions */
+
+Board::Board(std::size_t nr_of_players, const std::unordered_map<Coordinates, Hex>& hex_map_, HexInitializer hex_initializer)
 {
 	std::unordered_map<Coordinates, Hex> hex_map { hex_map_ };
 	std::unordered_map<Coordinates, Intersection> intersection_map;
@@ -27,28 +70,9 @@ Board::Board(const std::unordered_map<Coordinates, Hex>& hex_map_, HexInitialize
 	copy_values_from_map(intersection_map, intersections);
 	copy_values_from_map(path_map, paths);
 	copy_values_from_map(hex_map, hexes);
-}
 
-void connect_intersections(
-	const Coordinates& intersection_coordinates_a, 
-	const Coordinates& intersection_coordinates_b,
-	const std::pair<Coordinates, Coordinates>& path_coordinates,
-	std::unordered_map<Coordinates, Intersection>& intersection_map,
-	std::unordered_map<std::pair<Coordinates, Coordinates>, Path, PairHash>& path_map
-)
-{
-	std::size_t intersection_index_a { intersection_map[intersection_coordinates_a].get_index() };
-	std::size_t intersection_index_b { intersection_map[intersection_coordinates_b].get_index() };
-	std::size_t path_index { path_map[path_coordinates].get_index() };
-
-	intersection_map[intersection_coordinates_a].add_neighbour(intersection_index_b);
-	intersection_map[intersection_coordinates_b].add_neighbour(intersection_index_a);
-
-	intersection_map[intersection_coordinates_a].add_path(path_index);
-	intersection_map[intersection_coordinates_b].add_path(path_index);
-
-	path_map[path_coordinates].add_intersection(intersection_index_a);
-	path_map[path_coordinates].add_intersection(intersection_index_b);
+	buildable_settlements = std::vector(intersections.size(), std::vector<bool>(nr_of_players, false));
+	buildable_roads = std::vector(paths.size(), std::vector<bool>(nr_of_players, false));
 }
 
 void Board::make_graph(
@@ -80,7 +104,7 @@ void Board::make_graph(
 				auto intersection_insertion_result { intersection_map.insert({ intersection_coordinates, Intersection { intersection_coordinates, intersection_index } }) };
 				if (intersection_insertion_result.second) ++intersection_index;
 
-				intersection_map[intersection_coordinates].add_hex(hex_index++);
+				intersection_map[intersection_coordinates].add_neighboring_hex(hex_index++);
 
 				Coordinates next_intersection_coordinates { (i != intersection_offsets.size() - 1 ? intersection_offsets.at(i + 1) : intersection_offsets.at(0)) + hex_coordinates };
 				intersection_insertion_result = intersection_map.insert({ next_intersection_coordinates, Intersection { next_intersection_coordinates, intersection_index } });
@@ -100,18 +124,51 @@ void Board::make_graph(
 			}
 		}
 	);
+
+	/* connect paths to their neighboring paths */
+
+	std::ranges::for_each(paths, [this](Path& path)
+		{
+			std::ranges::for_each(path.get_neighboring_intersections(), [this, &path](std::size_t intersection_index)
+				{
+					Intersection& intersection{ intersections.at(intersection_index) };
+					
+					std::ranges::for_each(intersection.get_neighboring_paths(), [this, &path](std::size_t neighboring_path_index)
+						{
+							if (neighboring_path_index != path.get_index())
+							{
+								path.add_neighboring_path(neighboring_path_index);
+							}
+						}
+					);
+				}
+			);
+		}
+	);
 }
 
 void Board::build_settlement(std::size_t intersection_index, std::size_t player_index)
 {
 	Intersection& intersection { intersections.at(intersection_index) };
+	intersection.add_settlement(player_index);
+	buildable_settlements.at(intersection_index).empty();
 
-	intersection.add_building(Building { player_index, Building::Type::Settlement } );
-
-	std::ranges::for_each(intersection.get_neighbours(), [this](std::size_t neighbour_index)
+	std::ranges::for_each(intersection.get_neighboring_intersections(), [this, &player_index](std::size_t neighboring_intersection_index)
 		{
-			Intersection& neighbour { intersections.at(neighbour_index) };
-			neighbour.set_occupied();
+			intersections.at(neighboring_intersection_index).set_occupied();
+			buildable_settlements.at(neighboring_intersection_index).empty();
 		}
 	);
+
+	add_to_buildable_if_not_occupied(intersection.get_neighboring_paths(), buildable_roads, paths, player_index);
+}
+
+void Board::build_road(std::size_t path_index, std::size_t player_index)
+{
+	Path& path { paths.at(path_index) };
+	path.add_road(player_index);
+	buildable_roads.at(path_index).empty();
+
+	add_to_buildable_if_not_occupied(path.get_neighboring_intersections(), buildable_settlements, intersections, player_index);
+	add_to_buildable_if_not_occupied(path.get_neighboring_paths(), buildable_roads, paths, player_index);
 }

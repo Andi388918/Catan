@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <set>
+#include <array>
+#include <stack>
 
 #include "hex.h"
 #include "coordinates.h"
@@ -13,31 +15,34 @@ class Path;
 class Intersection
 {
 public:
-	Intersection() : coordinates {}, index {}, occupied {} { }
-	Intersection(const Coordinates& coordinates, std::size_t index) : coordinates { coordinates }, index { index }, occupied { false } {};
+	Intersection() : coordinates{}, index{}, occupied {} { }
+	Intersection(const Coordinates& coordinates, std::size_t index) : coordinates{ coordinates }, index{ index }, occupied { false } { }
 
-	void add_hex(std::size_t hex_index);
-	void add_neighbour(std::size_t neigbour_index);
-	void add_path(std::size_t path_index);
-	void add_building(const Building& building);
+	void add_neighboring_hex(std::size_t neighbouring_hex_index);
+	void add_neighboring_intersection(std::size_t neighbouring_intersection_index);
+	void add_neighboring_path(std::size_t neighbouring_path_index);
+
+	void add_settlement(std::size_t player_index);
+	void upgrade_settlement_to_city();
 
 	const Coordinates& get_coordinates() const { return coordinates; }
-	const std::set<std::size_t>& get_neighbours() const { return neighbours; }
-	const std::set<std::size_t>& get_paths() const { return paths; }
+	const std::vector<std::size_t>& get_neighboring_intersections() const { return neighboring_intersections; }
+	const std::vector<std::size_t>& get_neighboring_paths() const { return neighboring_paths; }
 
 	bool has_building() const { return building.has_value(); }
 	std::size_t get_index() const { return index; }
-	bool is_occupied() const { return occupied; }
-	void set_occupied() { this->occupied = true; }
+	void set_occupied() { occupied = true; }
+	bool is_occupied() { return occupied; }
 
 private:
 	Coordinates coordinates;
 	std::size_t index;
 
-	std::set<std::size_t> hexes;
-	std::set<std::size_t> neighbours;
-	std::set<std::size_t> paths;
+	std::vector<std::size_t> neighboring_hexes;
+	std::vector<std::size_t> neighboring_intersections;
+	std::vector<std::size_t> neighboring_paths;
 
 	std::optional<Building> building;
+
 	bool occupied;
 };

@@ -9,7 +9,7 @@
 class Game
 {
 public:
-	explicit Game(std::size_t nr_of_players) : players(nr_of_players), current_player_index {} {};
+	explicit Game(std::size_t nr_of_players) : board { nr_of_players }, players(nr_of_players), current_player_index{} {};
 	void move(int action);
 
 	Board get_board() { return board; }
