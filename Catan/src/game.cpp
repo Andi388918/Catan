@@ -1,5 +1,6 @@
 
 #include "game.h"
+#include "board/printing.h"
 #include <random>
 
 Game::Game(std::size_t nr_of_players) : board{ nr_of_players }, players { nr_of_players }, current_player_index {}
@@ -10,13 +11,17 @@ Game::Game(std::size_t nr_of_players) : board{ nr_of_players }, players { nr_of_
 	build_settlement(12, 0, true);
 	build_settlement(27, 1, true);
 	build_settlement(46, 2, true);
+
+	build_settlement(33, 0, true);
+	build_settlement(1, 1, true);
+	build_settlement(25, 2, true);
 }
 
 bool Game::is_finished()
 {
 	return std::ranges::any_of(players, [](const Player& player)
 		{
-			return player.get_victory_points() >= 12;
+			return player.get_victory_points() >= 10;
 		}
 	);
 }
@@ -55,6 +60,7 @@ void Game::move(int action)
 	else if (action >= 126 && action <= 130)
 	{
 		players.at(current_player_index).pay(Bank::Resource{ action - 126 }, 4);
+		bank.add(Bank::Resource{ action - 126 }, 4);
 		temporary_actions = { 131, 132, 133, 134, 135 };
 	}
 	else if (action >= 131 && action <= 135)
@@ -88,7 +94,11 @@ void add_to_buildable_if_not_occupied(ThingsToAdd& things_to_add, BuildableConta
 
 void Game::build_settlement(std::size_t intersection_index, std::size_t player_index, bool free)
 {
-	if (!free) players.at(player_index).pay(building_prices::settlement_price);
+	if (!free)
+	{
+		players.at(player_index).pay(building_prices::settlement_price);
+		bank.add(building_prices::settlement_price);
+	}
 	board.build_settlement(intersection_index, player_index);
 	players.at(player_index).add_victory_points(1);
 
@@ -127,6 +137,7 @@ void Game::build_settlement(std::size_t intersection_index, std::size_t player_i
 void Game::build_road(std::size_t path_index, std::size_t player_index)
 {
 	players.at(player_index).pay(building_prices::road_price);
+	bank.add(building_prices::road_price);
 	board.build_road(path_index, player_index);
 
 	const std::vector<Intersection>& intersections{ board.get_intersections() };
@@ -160,7 +171,11 @@ std::vector<int> get_actions_from_buildable(const std::vector<std::vector<bool>>
 
 std::vector<int> Game::get_legal_actions()
 {
-	std::cout << players.at(current_player_index).get_victory_points() << std::endl;
+	/*
+	std::cout << std::endl << "player " << current_player_index << ": ";
+	print(players.at(current_player_index).get_resources());
+	print(bank.get_resource_amounts());
+	*/
 
 	if (temporary_actions.size() > 0)
 		return temporary_actions;

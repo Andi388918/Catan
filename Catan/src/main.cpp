@@ -1,4 +1,5 @@
 
+#include "board/printing.h"
 #include "game.h"
 
 #include <iostream>
@@ -6,29 +7,12 @@
 #include <random>
 #include <algorithm>
 
-template<class C>
-void print(C& c)
-{
-    std::cout << "[";
-    std::ranges::for_each(c, [i = std::size_t {}, &c](const auto& e) mutable
-        {
-            std::cout << e;
-            if (i < c.size() - 1)
-            {
-                std::cout << ", ";
-            }
-            ++i;
-        }
-    );
-    std::cout << "]" << std::endl;
-}
-
 int main()
 {
 
     auto start = std::chrono::system_clock::now();
 
-    for (int i {}; i < 1; ++i)
+    for (int i {}; i < 1000; ++i)
     {
         Game game { 3 };
 
@@ -39,7 +23,7 @@ int main()
             // print(legal_actions);
             static std::default_random_engine ran;
             int random_number { std::uniform_int_distribution<>{0, static_cast<int>(legal_actions.size() - 1)}(ran)};
-            // std::cout << legal_actions.at(random_number) << std::endl;
+            // std::cout << "chosen action: " << legal_actions.at(random_number) << std::endl << std::endl;
             game.move(legal_actions.at(random_number));
             ++j;
         }

@@ -55,10 +55,6 @@ Board::Board(std::size_t nr_of_players, const std::unordered_map<Coordinates, He
 	
 	hex_initializer(hex_map);
 	make_graph(hex_map, intersection_map, path_map);
-
-	copy_values_from_map(intersection_map, intersections);
-	copy_values_from_map(path_map, paths);
-	copy_values_from_map(hex_map, hexes);
 }
 
 void Board::make_graph(
@@ -116,6 +112,10 @@ void Board::make_graph(
 			++hex_index;
 		}
 	);
+
+	copy_values_from_map(intersection_map, intersections);
+	copy_values_from_map(path_map, paths);
+	copy_values_from_map(hex_map, hexes);
 
 	/* connect paths to their neighboring paths */
 

@@ -161,6 +161,7 @@
     <ClInclude Include="src\board\building.h" />
     <ClInclude Include="src\board\coordinates.h" />
     <ClInclude Include="src\board\distributions.hpp" />
+    <ClInclude Include="src\board\printing.h" />
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\board\hex_initializer.h" />
     <ClInclude Include="src\board\intersection.h" />

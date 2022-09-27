@@ -26,10 +26,21 @@ public:
 		return amount;
 	}
 
+	std::array<std::size_t, 5>& get_resource_amounts() { return resource_amounts; }
+
 	void add(Resource resource, std::size_t amount)
 	{
 		std::size_t index { static_cast<std::size_t>(resource) };
 		resource_amounts.at(index) += amount;
+	}
+
+	void add(const std::array<std::size_t, 5>& resources)
+	{
+		std::ranges::for_each(resources, [this, i = std::size_t{}](std::size_t amount) mutable
+			{
+				resource_amounts.at(i++) += amount;
+			}
+		);
 	}
 
 private:
