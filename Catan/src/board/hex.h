@@ -24,10 +24,17 @@ public:
 	Hex(Type type = Type::Undefined, std::vector<int> numbers = {});
 
 	bool is_undefined() const { return type == Type::Undefined; }
-	Type get_type() const { return type; }
-	std::vector<int> get_numbers() const { return numbers; }
+	const Type get_type() const { return type; }
+	const std::vector<int>& get_numbers() const { return numbers; }
+	void set_coordinates(const Coordinates& coordinates_) { coordinates = coordinates_; }
+	const Coordinates& get_coordinates() const { return coordinates; }
+
+	void set_index(std::size_t index_) { index = index_; }
+	std::size_t get_index() const { return index; }
 
 private:
 	Type type;
 	std::vector<int> numbers;
+	Coordinates coordinates;
+	std::size_t index;
 };

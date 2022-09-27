@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-Hex::Hex(Type type, std::vector<int> numbers) : type { type }, numbers { numbers }
+Hex::Hex(Type type, std::vector<int> numbers) : type { type }, numbers { numbers }, coordinates {}
 {
 	std::ranges::for_each(numbers, [](const auto& number) 
 		{

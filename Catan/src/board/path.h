@@ -21,11 +21,11 @@ public:
 	std::size_t get_index() const { return index; }
 	bool has_road() const { return road.has_value(); }
 
-	std::vector<std::size_t>& get_neighboring_intersections() { return neighboring_intersections; }
-	std::vector<std::size_t>& get_neighboring_paths() { return neighboring_paths; }
+	const std::vector<std::size_t>& get_neighboring_intersections() const { return neighboring_intersections; }
+	const std::vector<std::size_t>& get_neighboring_paths() const { return neighboring_paths; }
 
 	void set_occupied() { occupied = true; }
-	bool is_occupied() { return occupied; }
+	bool is_occupied() const { return occupied; }
 
 private:
 	std::size_t index;

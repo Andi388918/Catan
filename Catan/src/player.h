@@ -1,25 +1,23 @@
 #pragma once
 
 #include "board/coordinates.h"
-#include <vector>
+#include <array>
+#include "bank.h"
 
 class Player
 {
 public:
-	Player() {};
+	Player() : resources{}, victory_points {} {};
 
-	void add_settlement(const Coordinates& coordinates) { settlements.push_back(coordinates); };
-	void add_road(const std::pair<Coordinates, Coordinates>& coordinates_pair) { roads.push_back(coordinates_pair); };
+	const std::array<std::size_t, 5>& get_resources() const { return resources; }
 
-	std::vector<int> get_legal_actions() const { return legal_actions; }
+	void add_to_resources(Bank::Resource resource, std::size_t amount) { resources.at(static_cast<std::size_t>(resource)) += amount; }
+	void remove_from_resources(Bank::Resource resource, std::size_t amount) { resources.at(static_cast<std::size_t>(resource)) -= amount; }
+
+	void add_victory_points(std::size_t victory_points_) { victory_points += victory_points_; }
+	std::size_t get_victory_points() const { return victory_points; }
 
 private:
-	std::vector<Coordinates> settlements;
-	std::vector<std::pair<Coordinates, Coordinates>> roads;
-
-	std::vector<Coordinates> possible_settlement_intersections;
-	std::vector<Coordinates> possible_city_intersections;
-	std::vector<std::pair<Coordinates, Coordinates>> possible_road_paths;
-
-	std::vector<int> legal_actions;
+	std::array<std::size_t, 5> resources;
+	std::size_t victory_points;
 };

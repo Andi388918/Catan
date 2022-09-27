@@ -3,30 +3,29 @@
 
 #include <iostream>
 #include <chrono>
+#include <random>
 
 int main()
 {
-    Game game_a { 3 };
 
     auto start = std::chrono::system_clock::now();
 
-    for (int i {}; i < 1000; ++i)
+    for (int i {}; i < 1; ++i)
     {
-        Game game = game_a;
+        Game game { 3 };
+
+        int j = 0;
+        while (!game.is_finished() && j < 1000)
+        {
+            std::vector<int>& legal_actions { game.get_legal_actions() };
+            static std::default_random_engine ran;
+            int random_number { std::uniform_int_distribution<>{0, static_cast<int>(legal_actions.size() - 1)}(ran)};
+            game.move(legal_actions.at(random_number));
+            ++j;
+        }
     }
 
     auto end = std::chrono::system_clock::now();
-    
-    std::cout << "copying: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
-
-    start = std::chrono::system_clock::now();
-
-    for (int i {}; i < 1000; ++i)
-    {
-        Game game_b { 3 };
-    }
-
-    end = std::chrono::system_clock::now();
 
     std::cout << "from scratch: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }

@@ -28,11 +28,13 @@ public:
 	const Coordinates& get_coordinates() const { return coordinates; }
 	const std::vector<std::size_t>& get_neighboring_intersections() const { return neighboring_intersections; }
 	const std::vector<std::size_t>& get_neighboring_paths() const { return neighboring_paths; }
+	const std::vector<std::size_t>& get_neighboring_hexes() const { return neighboring_hexes; }
 
 	bool has_building() const { return building.has_value(); }
+	const Building& get_building() const { return building.value(); }
 	std::size_t get_index() const { return index; }
 	void set_occupied() { occupied = true; }
-	bool is_occupied() { return occupied; }
+	bool is_occupied() const { return occupied; }
 
 private:
 	Coordinates coordinates;
