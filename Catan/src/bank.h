@@ -2,14 +2,7 @@
 
 #include <array>
 #include <algorithm>
-
-namespace building_prices
-{
-	static std::array<std::size_t, 5> settlement_price { 1, 1, 1, 1, 0 };
-	static std::array<std::size_t, 5> road_price { 1, 1, 0, 0, 0 };
-
-	bool can_be_bought_with(const std::array<std::size_t, 5>& what, const std::array<std::size_t, 5>& with);
-}
+#include <vector>
 
 class Bank
 {
@@ -43,3 +36,12 @@ private:
 	std::array<std::size_t, 5> resource_amounts;
 
 };
+
+namespace building_prices
+{
+	static std::array<std::size_t, 5> settlement_price{ 1, 1, 1, 1, 0 };
+	static std::array<std::size_t, 5> road_price{ 1, 1, 0, 0, 0 };
+
+	bool can_be_bought_with(const std::array<std::size_t, 5>& what, const std::array<std::size_t, 5>& with);
+	std::vector<Bank::Resource> four_to_one_tradable_resources(const std::array<std::size_t, 5>& resources);
+}

@@ -14,12 +14,13 @@ public:
 	void move(int action);
 
 	const Board& get_board() const { return board; }
-	std::vector<int>& get_legal_actions() const;
+	std::vector<int> get_legal_actions();
 
 	void increase_player_index();
 	bool is_finished();
 
-	void build_settlement(std::size_t intersection_index, std::size_t player_index);
+	void build_settlement(std::size_t intersection_index, std::size_t player_index, bool free = false);
+	void build_road(std::size_t path_index, std::size_t player_index);
 
 private:
 	Board board;
@@ -31,6 +32,8 @@ private:
 	std::vector<std::vector<bool>> buildable_settlements;
 	std::vector<std::vector<bool>> buildable_roads;
 	std::array<std::vector<std::pair<std::size_t, Hex::Type>>, 11> settlements_by_hex_number;
+
+	std::vector<int> temporary_actions;
 
 	void start_round();
 };

@@ -7,9 +7,9 @@ Game::Game(std::size_t nr_of_players) : board{ nr_of_players }, players { nr_of_
 	buildable_settlements = std::vector<std::vector<bool>>(board.get_intersections().size(), std::vector<bool>(3));
 	buildable_roads = std::vector<std::vector<bool>>(board.get_paths().size(), std::vector<bool>(3));
 
-	build_settlement(12, 0);
-	build_settlement(27, 1);
-	build_settlement(46, 2);
+	build_settlement(12, 0, true);
+	build_settlement(27, 1, true);
+	build_settlement(46, 2, true);
 }
 
 bool Game::is_finished()
@@ -35,13 +35,6 @@ void Game::start_round()
 			}
 		}
 	);
-
-	std::ranges::for_each(players.at(1).get_resources(), [](const auto amount)
-		{
-			std::cout << amount << ", ";
-		}
-	);
-	std::cout << std::endl;
 }
 
 void Game::move(int action)
@@ -53,15 +46,23 @@ void Game::move(int action)
 	}
 	else if (action >= 0 && action < 54)
 	{
-		board.build_settlement(action, current_player_index);
+		build_settlement(action, current_player_index);
 	}
 	else if (action >= 54 && action < 126)
 	{
-		board.build_road(action - 54, current_player_index);
+		build_road(action - 54, current_player_index);
 	}
-	else if (action >= 72 && action < 180)
+	else if (action >= 126 && action <= 130)
 	{
-		board.build_city(action - 72, current_player_index);
+		players.at(current_player_index).pay(Bank::Resource{ action - 126 }, 4);
+		temporary_actions = { 131, 132, 133, 134, 135 };
+	}
+	else if (action >= 131 && action <= 135)
+	{
+		Bank::Resource resource { action - 131 };
+		std::size_t received_amount{ bank.get(resource, 1) };
+		players.at(current_player_index).add_to_resources(resource, received_amount);
+		temporary_actions.clear();
 	}
 }
 
@@ -85,8 +86,9 @@ void add_to_buildable_if_not_occupied(ThingsToAdd& things_to_add, BuildableConta
 	);
 }
 
-void Game::build_settlement(std::size_t intersection_index, std::size_t player_index)
+void Game::build_settlement(std::size_t intersection_index, std::size_t player_index, bool free)
 {
+	if (!free) players.at(player_index).pay(building_prices::settlement_price);
 	board.build_settlement(intersection_index, player_index);
 	players.at(player_index).add_victory_points(1);
 
@@ -122,23 +124,47 @@ void Game::build_settlement(std::size_t intersection_index, std::size_t player_i
 	add_to_buildable_if_not_occupied(intersection.get_neighboring_paths(), buildable_roads, paths, player_index);
 }
 
+void Game::build_road(std::size_t path_index, std::size_t player_index)
+{
+	players.at(player_index).pay(building_prices::road_price);
+	board.build_road(path_index, player_index);
+
+	const std::vector<Intersection>& intersections{ board.get_intersections() };
+	const std::vector<Path>& paths{ board.get_paths() };
+
+	const Path& path { paths.at(path_index) };
+
+	std::fill(buildable_roads.at(path_index).begin(),
+		buildable_roads.at(path_index).end(),
+		false);
+
+	add_to_buildable_if_not_occupied(path.get_neighboring_paths(), buildable_roads, paths, player_index);
+	add_to_buildable_if_not_occupied(path.get_neighboring_intersections(), buildable_settlements, intersections, player_index);
+}
+
 std::vector<int> get_actions_from_buildable(const std::vector<std::vector<bool>>& buildable, std::size_t player_index, int offset)
 {
 	std::vector<int> actions;
 
 	std::ranges::for_each(buildable, [&player_index, &actions, &offset, i = std::size_t{}](const std::vector<bool>& v) mutable
-	{
-		if (v.at(player_index))
 		{
-			actions.push_back(i + offset);
+			if (v.at(player_index))
+			{
+				actions.push_back(i + offset);
+			}
+			++i;
 		}
-		++i;
-	}
 	);
+	return actions;
 }
 
-std::vector<int>& Game::get_legal_actions() const
+std::vector<int> Game::get_legal_actions()
 {
+	std::cout << players.at(current_player_index).get_victory_points() << std::endl;
+
+	if (temporary_actions.size() > 0)
+		return temporary_actions;
+
 	std::vector<int> legal_actions;
 
 	legal_actions.push_back(-1);
@@ -153,6 +179,17 @@ std::vector<int>& Game::get_legal_actions() const
 	{
 		std::vector<int> actions_roads = get_actions_from_buildable(buildable_roads, current_player_index, 54);
 		legal_actions.insert(legal_actions.end(), actions_roads.begin(), actions_roads.end());
+	}
+
+	std::vector<Bank::Resource> four_to_one_tradable_resources { building_prices::four_to_one_tradable_resources(players.at(current_player_index).get_resources()) };
+
+	if (four_to_one_tradable_resources.size() > 0)
+	{
+		std::ranges::for_each(four_to_one_tradable_resources, [&legal_actions](const Bank::Resource& resource)
+			{
+				legal_actions.push_back(static_cast<std::size_t>(resource) + 126);
+			}
+		);
 	}
 
 	return legal_actions;
