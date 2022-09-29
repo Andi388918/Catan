@@ -20,16 +20,16 @@ private:
 	std::vector<Hex> hexes;
 
 	void make_graph(
-		std::unordered_map<Coordinates, Hex>& hex_map,
-		std::unordered_map<Coordinates, Intersection>& intersection_map,
-		std::unordered_map<std::pair<Coordinates, Coordinates>, Path, PairHash>& path_map
+		std::unordered_map<Coordinates, Hex>& hex_map
 	);
+
+	void connect_path_to_neighboring_paths(Path& path);
 
 public:
 	explicit Board
 	(
 		std::size_t nr_of_players,
-		const std::unordered_map<Coordinates, Hex>& hex_map_ = Distributions::hexes,
+		std::unordered_map<Coordinates, Hex> hex_map = Distributions::hexes,
 		HexInitializer hex_initializer = HexInitializer {}
 	);
 

@@ -5,12 +5,10 @@
 
 #include "distributions.hpp"
 
-void HexInitializer::operator()(std::unordered_map<Coordinates, Hex>& hexes)
+void HexInitializer::operator()(std::vector<Hex>& hexes)
 {
 	std::vector<std::vector<int>> hex_numbers { Distributions::map_to_vector_key_times_value(Distributions::hex_numbers) };
 	std::vector<Hex::Type> hex_resources { Distributions::map_to_vector_key_times_value(Distributions::hex_resources) };
-
-	assert(hexes.size() - 1 == hex_numbers.size() && hexes.size() - 1 == hex_resources.size());
 
 	/* randomly shuffle resources and numbers */
 
@@ -18,11 +16,9 @@ void HexInitializer::operator()(std::unordered_map<Coordinates, Hex>& hexes)
 	std::ranges::shuffle(hex_resources, rng);
 	std::ranges::shuffle(hex_numbers, rng);
 
-	std::ranges::for_each(hexes, [&hex_resources, &hex_numbers](auto& pair)
+	std::ranges::for_each(hexes, [&hex_resources, &hex_numbers](Hex& hex)
 		{
 			/* initialize hex */
-
-			Hex& hex { pair.second };
 
 			if (hex.is_undefined())
 			{

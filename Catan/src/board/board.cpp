@@ -9,7 +9,7 @@
 /* helper functions */
 
 template<class Key, class T, class Hash = std::hash<Key>>
-void copy_values_from_map(const std::unordered_map<Key, T, Hash>& map, std::vector<T>& vector)
+void copy_ordered_values_from_map(const std::unordered_map<Key, T, Hash>& map, std::vector<T>& vector)
 {
 	vector.resize(map.size());
 	std::ranges::for_each(map, [&vector](const auto& pair)
@@ -45,24 +45,39 @@ void connect_intersections(
 	path.add_neighboring_intersection(intersection_index_b);
 }
 
+void Board::connect_path_to_neighboring_paths(Path& path)
+{
+	std::ranges::for_each(path.get_neighboring_intersections(), [this, &path](std::size_t intersection_index)
+		{
+			Intersection& intersection { intersections.at(intersection_index) };
+
+			std::ranges::for_each(intersection.get_neighboring_paths(), [this, &path](std::size_t neighboring_path_index)
+				{
+					if (neighboring_path_index != path.get_index())
+					{
+						path.add_neighboring_path(neighboring_path_index);
+					}
+				}
+			);
+		}
+	);
+}
+
 /* member functions */
 
-Board::Board(std::size_t nr_of_players, const std::unordered_map<Coordinates, Hex>& hex_map_, HexInitializer hex_initializer)
+Board::Board(std::size_t nr_of_players, std::unordered_map<Coordinates, Hex> hex_map, HexInitializer hex_initializer)
 {
-	std::unordered_map<Coordinates, Hex> hex_map { hex_map_ };
-	std::unordered_map<Coordinates, Intersection> intersection_map;
-	std::unordered_map<std::pair<Coordinates, Coordinates>, Path, PairHash> path_map;
-	
-	hex_initializer(hex_map);
-	make_graph(hex_map, intersection_map, path_map);
+	make_graph(hex_map);
+	hex_initializer(hexes);
 }
 
 void Board::make_graph(
-	std::unordered_map<Coordinates, Hex>& hex_map, 
-	std::unordered_map<Coordinates, Intersection>& intersection_map,
-	std::unordered_map<std::pair<Coordinates, Coordinates>, Path, PairHash>& path_map
+	std::unordered_map<Coordinates, Hex>& hex_map
 )
 {
+	std::unordered_map<Coordinates, Intersection> intersection_map;
+	std::unordered_map<std::pair<Coordinates, Coordinates>, Path, PairHash> path_map;
+
 	std::size_t intersection_index {};
 	std::size_t path_index {};
 
@@ -113,28 +128,13 @@ void Board::make_graph(
 		}
 	);
 
-	copy_values_from_map(intersection_map, intersections);
-	copy_values_from_map(path_map, paths);
-	copy_values_from_map(hex_map, hexes);
-
-	/* connect paths to their neighboring paths */
+	copy_ordered_values_from_map(intersection_map, intersections);
+	copy_ordered_values_from_map(path_map, paths);
+	copy_ordered_values_from_map(hex_map, hexes);
 
 	std::ranges::for_each(paths, [this](Path& path)
 		{
-			std::ranges::for_each(path.get_neighboring_intersections(), [this, &path](std::size_t intersection_index)
-				{
-					Intersection& intersection{ intersections.at(intersection_index) };
-					
-					std::ranges::for_each(intersection.get_neighboring_paths(), [this, &path](std::size_t neighboring_path_index)
-						{
-							if (neighboring_path_index != path.get_index())
-							{
-								path.add_neighboring_path(neighboring_path_index);
-							}
-						}
-					);
-				}
-			);
+			connect_path_to_neighboring_paths(path);
 		}
 	);
 }

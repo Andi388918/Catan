@@ -1,11 +1,11 @@
 #pragma once
 
-#include <map>
+#include <vector>
 
 #include "coordinates.h"
 #include "hex.h"
 
 struct HexInitializer
 {
-	void operator()(std::unordered_map<Coordinates, Hex>& hexes);
+	void operator()(std::vector<Hex>& hexes);
 };
