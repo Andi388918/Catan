@@ -150,6 +150,7 @@
     <ClCompile Include="src\board\hex.h" />
     <ClCompile Include="src\board\hex_initializer.cpp" />
     <ClCompile Include="src\board\intersection.cpp" />
+    <ClCompile Include="src\item_deck.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\board\pair.cpp" />
     <ClCompile Include="src\board\path.cpp" />
@@ -161,13 +162,15 @@
     <ClInclude Include="src\board\building.h" />
     <ClInclude Include="src\board\coordinates.h" />
     <ClInclude Include="src\board\distributions.hpp" />
-    <ClInclude Include="src\board\printing.h" />
+    <ClInclude Include="src\item_deck.h" />
+    <ClInclude Include="src\printing.h" />
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\board\hex_initializer.h" />
     <ClInclude Include="src\board\intersection.h" />
     <ClInclude Include="src\board\pair.h" />
     <ClInclude Include="src\board\path.h" />
     <ClInclude Include="src\player.h" />
+    <ClInclude Include="src\resources.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -29,9 +29,9 @@ void connect_intersections(
 	Intersection& intersection_b{ intersection_map[intersection_coordinates_b] };
 	Path& path{ path_map[path_coordinates] };
 
-	std::size_t intersection_index_a{ intersection_a.get_index() };
-	std::size_t intersection_index_b{ intersection_b.get_index() };
-	std::size_t path_index{ path.get_index() };
+	Board::size_type intersection_index_a{ intersection_a.get_index() };
+	Board::size_type intersection_index_b{ intersection_b.get_index() };
+	Board::size_type path_index{ path.get_index() };
 
 	intersection_a.add_neighboring_intersection(intersection_index_b);
 	intersection_b.add_neighboring_intersection(intersection_index_a);
@@ -45,11 +45,11 @@ void connect_intersections(
 
 void Board::connect_path_to_neighboring_paths(Path& path)
 {
-	std::ranges::for_each(path.get_neighboring_intersections(), [this, &path](std::size_t intersection_index)
+	std::ranges::for_each(path.get_neighboring_intersections(), [this, &path](size_type intersection_index)
 		{
 			Intersection& intersection { intersections.at(intersection_index) };
 
-			std::ranges::for_each(intersection.get_neighboring_paths(), [this, &path](std::size_t neighboring_path_index)
+			std::ranges::for_each(intersection.get_neighboring_paths(), [this, &path](size_type neighboring_path_index)
 				{
 					if (neighboring_path_index != path.get_index())
 					{
@@ -63,7 +63,7 @@ void Board::connect_path_to_neighboring_paths(Path& path)
 
 /* member functions */
 
-Board::Board(std::size_t nr_of_players, std::unordered_map<Coordinates, Hex> hex_map, HexInitializer hex_initializer)
+Board::Board(size_type nr_of_players, std::unordered_map<Coordinates, Hex> hex_map, HexInitializer hex_initializer)
 {
 	make_graph(hex_map);
 	hex_initializer(hexes);
@@ -76,10 +76,10 @@ void Board::make_graph(
 	std::unordered_map<Coordinates, Intersection> intersection_map;
 	std::unordered_map<std::pair<Coordinates, Coordinates>, Path, PairHash> path_map;
 
-	std::size_t intersection_index {};
-	std::size_t path_index {};
+	size_type intersection_index {};
+	size_type path_index {};
 
-	std::ranges::for_each(hex_map, [this, &intersection_map, &path_map, &intersection_index, &path_index, hex_index = std::size_t {}](std::pair<const Coordinates, Hex>& pair) mutable
+	std::ranges::for_each(hex_map, [this, &intersection_map, &path_map, &intersection_index, &path_index, hex_index = size_type {}](std::pair<const Coordinates, Hex>& pair) mutable
 		{
 			Coordinates hex_coordinates { pair.first };
 			Hex& hex { pair.second };
@@ -137,25 +137,25 @@ void Board::make_graph(
 	);
 }
 
-void Board::build_settlement(std::size_t intersection_index, std::size_t player_index)
+void Board::build_settlement(size_type intersection_index, size_type player_index)
 {
 	Intersection& intersection { intersections.at(intersection_index) };
 	intersection.add_settlement(player_index);
 
-	std::ranges::for_each(intersection.get_neighboring_intersections(), [this](std::size_t neighboring_intersection_index)
+	std::ranges::for_each(intersection.get_neighboring_intersections(), [this](size_type neighboring_intersection_index)
 		{
 			intersections.at(neighboring_intersection_index).set_occupied();
 		}
 	);
 }
 
-void Board::build_road(std::size_t path_index, std::size_t player_index)
+void Board::build_road(size_type path_index, size_type player_index)
 {
 	Path& path { paths.at(path_index) };
 	path.add_road(player_index);
 }
 
-void Board::build_city(std::size_t intersection_index, std::size_t player_index)
+void Board::build_city(size_type intersection_index, size_type player_index)
 {
 	intersections.at(intersection_index).upgrade_settlement_to_city();
 }

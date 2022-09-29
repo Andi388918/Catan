@@ -7,8 +7,8 @@
 
 void HexInitializer::operator()(std::vector<Hex>& hexes)
 {
-	std::vector<std::vector<int>> hex_numbers { Distributions::map_to_vector_key_times_value(Distributions::hex_numbers) };
-	std::vector<Hex::Type> hex_resources { Distributions::map_to_vector_key_times_value(Distributions::hex_resources) };
+	std::vector<std::vector<int>> hex_numbers { Distributions::copy_keys_value_amount_of_times(Distributions::hex_numbers) };
+	std::vector<Hex::Type> hex_resources { Distributions::copy_keys_value_amount_of_times(Distributions::hex_resources) };
 
 	/* randomly shuffle resources and numbers */
 

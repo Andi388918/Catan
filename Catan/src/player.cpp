@@ -1,17 +1,16 @@
 
 #include "player.h"
 
-void Player::pay(const std::array<std::size_t, 5>& to_pay) 
+void Player::pay(const std::vector<resources::size_type>& resource_amounts_)
 { 
-	std::ranges::for_each(to_pay, [this, i = std::size_t {}](std::size_t amount) mutable
+	std::ranges::for_each(resource_amounts_, [this, i = std::size_t {}](resources::size_type amount) mutable
 		{
-			resources.at(i) -= amount;
-			++i;
+			resource_amounts.at(i++) -= amount;
 		}
 	);
 }
 
-void Player::pay(Bank::Resource resource, std::size_t amount)
+void Player::pay(resources::Resource resource, resources::size_type amount)
 {
-	resources.at(static_cast<std::size_t>(resource)) -= amount;
+	resource_amounts.at(static_cast<std::size_t>(resource)) -= amount;
 }

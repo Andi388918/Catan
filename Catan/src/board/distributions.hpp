@@ -7,6 +7,8 @@
 
 #include "hex.h"
 
+/* TODO: outsource distributions to a file describing board layout, resources, etc. */
+
 namespace Distributions
 {
 	static const std::map<Hex::Type, int> hex_resources = 
@@ -58,8 +60,9 @@ namespace Distributions
 	};
 
 	/* copy K V amount of times into vector for each K */
+
 	template <class Key, class T>
-	static std::vector<Key> map_to_vector_key_times_value(const std::map<Key, T>& m)
+	static std::vector<Key> copy_keys_value_amount_of_times(const std::map<Key, T>& m)
 	{
 		std::vector<Key> v;
 

@@ -1,9 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <set>
-#include <array>
-#include <stack>
 
 #include "hex.h"
 #include "coordinates.h"
@@ -15,7 +12,7 @@ class Path;
 class Intersection
 {
 public:
-	Intersection() : coordinates{}, index{}, occupied {} { }
+	Intersection() = default;
 	Intersection(const Coordinates& coordinates, std::size_t index) : coordinates{ coordinates }, index{ index }, occupied { false } { }
 
 	void add_neighboring_hex(std::size_t neighbouring_hex_index);
@@ -26,13 +23,15 @@ public:
 	void upgrade_settlement_to_city();
 
 	const Coordinates& get_coordinates() const { return coordinates; }
+	std::size_t get_index() const { return index; }
+
 	const std::vector<std::size_t>& get_neighboring_intersections() const { return neighboring_intersections; }
 	const std::vector<std::size_t>& get_neighboring_paths() const { return neighboring_paths; }
 	const std::vector<std::size_t>& get_neighboring_hexes() const { return neighboring_hexes; }
 
 	bool has_building() const { return building.has_value(); }
 	const Building& get_building() const { return building.value(); }
-	std::size_t get_index() const { return index; }
+
 	void set_occupied() { occupied = true; }
 	bool is_occupied() const { return occupied; }
 

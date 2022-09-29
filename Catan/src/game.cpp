@@ -1,6 +1,8 @@
 
 #include "game.h"
-#include "board/printing.h"
+#include "printing.h"
+#include "resources.h"
+
 #include <random>
 
 Game::Game(std::size_t nr_of_players) : board{ nr_of_players }, players { nr_of_players }, current_player_index {}
@@ -29,14 +31,14 @@ bool Game::is_finished()
 void Game::start_round()
 {
 	static std::default_random_engine ran;
-	int random_number{ std::uniform_int_distribution<>{2, 12}(ran) };
+	int random_number { std::uniform_int_distribution<>{2, 12}(ran) };
 
 	std::ranges::for_each(settlements_by_hex_number.at(random_number - 2), [this](const auto& pair)
 		{
 			if (pair.second != Hex::Type::Desert)
 			{
-				std::size_t received_amount{ bank.get(static_cast<Bank::Resource>(pair.second), 1) };
-				players.at(pair.first).add_to_resources(static_cast<Bank::Resource>(pair.second), received_amount);
+				std::size_t received_amount { bank.get(static_cast<resources::Resource>(pair.second), 1) };
+				players.at(pair.first).add_to_resources(static_cast<resources::Resource>(pair.second), received_amount);
 			}
 		}
 	);
@@ -59,13 +61,13 @@ void Game::move(int action)
 	}
 	else if (action >= 126 && action <= 130)
 	{
-		players.at(current_player_index).pay(Bank::Resource{ action - 126 }, 4);
-		bank.add(Bank::Resource{ action - 126 }, 4);
+		players.at(current_player_index).pay(resources::Resource{ action - 126 }, 4);
+		bank.add(resources::Resource{ action - 126 }, 4);
 		temporary_actions = { 131, 132, 133, 134, 135 };
 	}
 	else if (action >= 131 && action <= 135)
 	{
-		Bank::Resource resource { action - 131 };
+		resources::Resource resource { action - 131 };
 		std::size_t received_amount{ bank.get(resource, 1) };
 		players.at(current_player_index).add_to_resources(resource, received_amount);
 		temporary_actions.clear();
@@ -171,12 +173,6 @@ std::vector<int> get_actions_from_buildable(const std::vector<std::vector<bool>>
 
 std::vector<int> Game::get_legal_actions()
 {
-	/*
-	std::cout << std::endl << "player " << current_player_index << ": ";
-	print(players.at(current_player_index).get_resources());
-	print(bank.get_resource_amounts());
-	*/
-
 	if (temporary_actions.size() > 0)
 		return temporary_actions;
 
@@ -196,16 +192,25 @@ std::vector<int> Game::get_legal_actions()
 		legal_actions.insert(legal_actions.end(), actions_roads.begin(), actions_roads.end());
 	}
 
-	std::vector<Bank::Resource> four_to_one_tradable_resources { building_prices::four_to_one_tradable_resources(players.at(current_player_index).get_resources()) };
+	std::vector<resources::Resource> four_to_one_tradable_resources { building_prices::four_to_one_tradable_resources(players.at(current_player_index).get_resources()) };
 
 	if (four_to_one_tradable_resources.size() > 0)
 	{
-		std::ranges::for_each(four_to_one_tradable_resources, [&legal_actions](const Bank::Resource& resource)
+		std::ranges::for_each(four_to_one_tradable_resources, [&legal_actions](const resources::Resource& resource)
 			{
 				legal_actions.push_back(static_cast<std::size_t>(resource) + 126);
 			}
 		);
 	}
+
+	/*
+	print(legal_actions);
+	std::cout << std::endl << "player " << current_player_index << ": ";
+	print(players.at(current_player_index).get_resources());
+	std::cout << players.at(current_player_index).get_victory_points() << std::endl;
+	std::cout << "bank: ";
+	print(bank.get_resource_amounts());
+	*/
 
 	return legal_actions;
 }

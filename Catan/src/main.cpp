@@ -1,5 +1,5 @@
 
-#include "board/printing.h"
+#include "printing.h"
 #include "game.h"
 
 #include <iostream>
@@ -20,10 +20,8 @@ int main()
         while (!game.is_finished())
         {
             std::vector<int> legal_actions { game.get_legal_actions() };
-            // print(legal_actions);
             static std::default_random_engine ran;
             int random_number { std::uniform_int_distribution<>{0, static_cast<int>(legal_actions.size() - 1)}(ran)};
-            // std::cout << "chosen action: " << legal_actions.at(random_number) << std::endl << std::endl;
             game.move(legal_actions.at(random_number));
             ++j;
         }

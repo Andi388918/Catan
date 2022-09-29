@@ -51,6 +51,9 @@
     <ClCompile Include="src\bank.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\item_deck.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\board\board.h">
@@ -86,7 +89,13 @@
     <ClInclude Include="src\bank.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\board\printing.h">
+    <ClInclude Include="src\printing.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resources.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\item_deck.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
