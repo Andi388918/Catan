@@ -13,7 +13,7 @@ int main()
     {
         auto start = std::chrono::system_clock::now();
 
-        for (int i{}; i < 1000; ++i)
+        for (int i {}; i < 1; ++i)
         {
             Game game{ 3 };
 

@@ -3,12 +3,28 @@
 #include "printing.h"
 #include "resources.h"
 
+using namespace std::placeholders;
+
 void Game::create_action_ranges()
 {
-	action_ranges.push_back({ 0, board.get_intersections().size() });
-	action_ranges.push_back({ action_ranges.back().second, action_ranges.back().second + board.get_paths().size() });
-	action_ranges.push_back({ action_ranges.back().second, action_ranges.back().second + 5 });
-	action_ranges.push_back({ action_ranges.back().second, action_ranges.back().second + 5 });
+	std::multimap<int, std::function<void(int)>> action_range_function_map
+	{
+		{ 1, std::bind(&Game::start_next_round, this, _1) },
+		{ board.get_intersections().size(), std::bind(&Game::buy_settlement, this, _1) },
+		{ board.get_paths().size(), std::bind(&Game::buy_road, this, _1) },
+		{ 5, std::bind(&Game::trade_four_for_one, this, _1) },
+		{ 5, std::bind(&Game::receive_resource_from_bank, this, _1) }
+	};
+
+	action_ranges.reserve(action_range_function_map.size());
+
+	std::ranges::for_each(action_range_function_map, 
+		[this, last = int {}](const auto& action_range_function_pair) mutable
+		{
+			action_ranges.push_back(ActionRange { last, last + action_range_function_pair.first, action_range_function_pair.second });
+			last += action_range_function_pair.first;
+		}
+	);
 }
 
 Game::Game(std::size_t nr_of_players) : board{ nr_of_players }, players { nr_of_players }, current_player_index {}
@@ -16,13 +32,18 @@ Game::Game(std::size_t nr_of_players) : board{ nr_of_players }, players { nr_of_
 	buildable_settlements = std::vector<std::vector<bool>>(board.get_intersections().size(), std::vector<bool>(3));
 	buildable_roads = std::vector<std::vector<bool>>(board.get_paths().size(), std::vector<bool>(3));
 
-	build_settlement(12, 0, true);
-	build_settlement(27, 1, true);
-	build_settlement(46, 2, true);
+	build_settlement(12);
+	build_settlement(33);
 
-	build_settlement(33, 0, true);
-	build_settlement(1, 1, true);
-	build_settlement(25, 2, true);
+	increase_player_index();
+
+	build_settlement(27);
+	build_settlement(1);
+
+	increase_player_index();
+
+	build_settlement(46);
+	build_settlement(25);
 
 	create_action_ranges();
 }
@@ -68,7 +89,7 @@ void Game::collect_resources(int number)
 	);
 }
 
-void Game::start_next_round()
+void Game::start_next_round(int action)
 {
 	increase_player_index();
 	int random_number { random_device.next() };
@@ -77,32 +98,28 @@ void Game::start_next_round()
 
 void Game::move(int action)
 {
-	if (action == -1)
+	for (auto it { action_ranges.begin() }; it != action_ranges.end(); ++it)
 	{
-		start_next_round();
-	}
-	else if (action >= action_ranges.at(0).first && action < action_ranges.at(0).second)
-	{
-		build_settlement(action - action_ranges.at(0).first, current_player_index);
-	}
-	else if (action >= action_ranges.at(1).first && action < action_ranges.at(1).second)
-	{
-		build_road(action - action_ranges.at(1).first, current_player_index);
-	}
-	else if (action >= action_ranges.at(2).first && action < action_ranges.at(2).second)
-	{
-		resources::Resource resource_type { resources::Resource { action - action_ranges.at(2).first } };
-		transfer_resources_from_player_to_bank(current_player_index, resource_type, 4);
-		temporary_actions = { 131, 132, 133, 134, 135 };
-	}
-	else if (action >= action_ranges.at(3).first && action < action_ranges.at(3).second)
-	{
-		resources::Resource resource_type { action - action_ranges.at(3).first };
-		transfer_resources_from_bank_to_player(current_player_index, resource_type, 1);
-		temporary_actions.clear();
+		if (action >= it->lower_bound && action < it->upper_bound)
+		{
+			it->function(action - it->lower_bound);
+		}
 	}
 }
 
+void Game::trade_four_for_one(int action)
+{
+	resources::Resource resource_type{ resources::Resource { action } };
+	transfer_resources_from_player_to_bank(current_player_index, resource_type, 4);
+	temporary_actions = { 131, 132, 133, 134, 135 };
+}
+
+void Game::receive_resource_from_bank(int action)
+{
+	resources::Resource resource_type { action };
+	transfer_resources_from_bank_to_player(current_player_index, resource_type, 1);
+	temporary_actions.clear();
+}
 
 template<class ThingsToAdd, class BuildableContainer, class LookupContainer>
 void add_to_buildable_if_not_occupied(ThingsToAdd& things_to_add, BuildableContainer& buildable_container, LookupContainer& lookup_container, std::size_t player_index)
@@ -117,14 +134,22 @@ void add_to_buildable_if_not_occupied(ThingsToAdd& things_to_add, BuildableConta
 	);
 }
 
-void Game::build_settlement(std::size_t intersection_index, std::size_t player_index, bool free)
+void Game::buy_settlement(std::size_t intersection_index)
 {
-	if (!free)
-	{
-		transfer_resources_from_player_to_bank(player_index, building_prices::settlement_price);
-	}
-	board.build_settlement(intersection_index, player_index);
-	players.at(player_index).add_victory_points(1);
+	transfer_resources_from_player_to_bank(current_player_index, building_prices::settlement_price);
+	build_settlement(intersection_index);
+}
+
+void Game::buy_road(std::size_t path_index)
+{
+	transfer_resources_from_player_to_bank(current_player_index, building_prices::road_price);
+	build_road(path_index);
+}
+
+void Game::build_settlement(std::size_t intersection_index)
+{
+	board.build_settlement(intersection_index, current_player_index);
+	players.at(current_player_index).add_victory_points(1);
 
 	const std::vector<Intersection>& intersections { board.get_intersections() };
 	const std::vector<Hex>& hexes { board.get_hexes() };
@@ -136,20 +161,20 @@ void Game::build_settlement(std::size_t intersection_index, std::size_t player_i
 		buildable_settlements.at(intersection_index).end(),
 		false);
 
-	std::ranges::for_each(intersection.get_neighboring_hexes(), [this, &player_index, &hexes](std::size_t hex_index)
+	std::ranges::for_each(intersection.get_neighboring_hexes(), [this, &hexes](std::size_t hex_index)
 		{
 			const Hex& hex { hexes.at(hex_index) };
 
-			std::ranges::for_each(hex.get_numbers(), [this, &player_index, &hex](std::size_t number)
+			std::ranges::for_each(hex.get_numbers(), [this, &hex](std::size_t number)
 				{
 					if (hex.get_resource().has_value())
-						settlements_built_at_hex[number].push_back({ player_index, hex.get_resource().value() });
+						settlements_built_at_hex[number].push_back({ current_player_index, hex.get_resource().value() });
 				}
 			);
 		}
 	);
 
-	std::ranges::for_each(intersection.get_neighboring_intersections(), [this, &player_index](std::size_t neighboring_intersection_index)
+	std::ranges::for_each(intersection.get_neighboring_intersections(), [this](std::size_t neighboring_intersection_index)
 		{
 			std::fill(buildable_settlements.at(neighboring_intersection_index).begin(),
 				buildable_settlements.at(neighboring_intersection_index).end(),
@@ -157,14 +182,12 @@ void Game::build_settlement(std::size_t intersection_index, std::size_t player_i
 		}
 	);
 
-	add_to_buildable_if_not_occupied(intersection.get_neighboring_paths(), buildable_roads, paths, player_index);
+	add_to_buildable_if_not_occupied(intersection.get_neighboring_paths(), buildable_roads, paths, current_player_index);
 }
 
-void Game::build_road(std::size_t path_index, std::size_t player_index)
+void Game::build_road(std::size_t path_index)
 {
-	transfer_resources_from_player_to_bank(player_index, building_prices::road_price);
-
-	board.build_road(path_index, player_index);
+	board.build_road(path_index, current_player_index);
 
 	const std::vector<Intersection>& intersections{ board.get_intersections() };
 	const std::vector<Path>& paths{ board.get_paths() };
@@ -175,8 +198,8 @@ void Game::build_road(std::size_t path_index, std::size_t player_index)
 		buildable_roads.at(path_index).end(),
 		false);
 
-	add_to_buildable_if_not_occupied(path.get_neighboring_paths(), buildable_roads, paths, player_index);
-	add_to_buildable_if_not_occupied(path.get_neighboring_intersections(), buildable_settlements, intersections, player_index);
+	add_to_buildable_if_not_occupied(path.get_neighboring_paths(), buildable_roads, paths, current_player_index);
+	add_to_buildable_if_not_occupied(path.get_neighboring_intersections(), buildable_settlements, intersections, current_player_index);
 }
 
 std::vector<int> get_actions_from_buildable(const std::vector<std::vector<bool>>& buildable, std::size_t player_index, int offset)
