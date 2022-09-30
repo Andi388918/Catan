@@ -23,7 +23,7 @@ public:
 		}
 	) : resource_decks { resource_decks } {}
 
-	resources::size_type get(resources::Resource resource, resources::size_type amount);
+	resources::size_type get(resources::Resource resource_type, resources::size_type resource_amount);
 	void add(const std::map<resources::Resource, ResourceCardDeck>& resource_decks_);
 
 	std::map<resources::Resource, ResourceCardDeck>& get_resource_amounts() { return resource_decks; }

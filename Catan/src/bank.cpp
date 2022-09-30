@@ -39,13 +39,13 @@ namespace building_prices
 	}
 }
 
-resources::size_type Bank::get(resources::Resource resource, resources::size_type amount)
+resources::size_type Bank::get(resources::Resource resource_type, resources::size_type resource_amount)
 {
-	auto iterator { resource_decks.find(resource) };
+	auto iterator { resource_decks.find(resource_type) };
 
 	if (iterator != std::end(resource_decks))
 	{
-		return iterator->second.get(amount);
+		return iterator->second.get(resource_amount);
 	}
 
 	throw resources::ResourceNotAvailable {};

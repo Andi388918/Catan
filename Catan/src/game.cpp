@@ -3,6 +3,14 @@
 #include "printing.h"
 #include "resources.h"
 
+void Game::create_action_ranges()
+{
+	action_ranges.push_back({ 0, board.get_intersections().size() });
+	action_ranges.push_back({ action_ranges.back().second, action_ranges.back().second + board.get_paths().size() });
+	action_ranges.push_back({ action_ranges.back().second, action_ranges.back().second + 5 });
+	action_ranges.push_back({ action_ranges.back().second, action_ranges.back().second + 5 });
+}
+
 Game::Game(std::size_t nr_of_players) : board{ nr_of_players }, players { nr_of_players }, current_player_index {}
 {
 	buildable_settlements = std::vector<std::vector<bool>>(board.get_intersections().size(), std::vector<bool>(3));
@@ -15,6 +23,8 @@ Game::Game(std::size_t nr_of_players) : board{ nr_of_players }, players { nr_of_
 	build_settlement(33, 0, true);
 	build_settlement(1, 1, true);
 	build_settlement(25, 2, true);
+
+	create_action_ranges();
 }
 
 void Game::increase_player_index()
@@ -44,50 +54,50 @@ void Game::transfer_resources_from_bank_to_player(std::size_t player_index, reso
 	players.at(player_index).add_to_resources(resource_type, receveived_resource_amount);
 }
 
-void Game::start_round()
+void Game::transfer_resources_from_player_to_bank(std::size_t player_index, resources::Resource resource_type, resources::size_type resource_amount)
 {
-	int random_number { random_device.next() };
+	transfer_resources_from_player_to_bank(player_index, {{resource_type, resource_amount}});
+}
 
-	std::ranges::for_each(settlements_by_hex_number.at(random_number - 2), [this](const auto& pair)
+void Game::collect_resources(int number)
+{
+	std::ranges::for_each(settlements_built_at_hex[number], [this](const std::pair<std::size_t, resources::Resource>& player_resource_pair)
 		{
-			if (pair.second != Hex::Type::Desert)
-			{
-				std::size_t player_index { pair.first };
-				resources::Resource resource_type { static_cast<resources::Resource>(pair.second) };
-				transfer_resources_from_bank_to_player(player_index, resource_type, 1);
-			}
+			transfer_resources_from_bank_to_player(player_resource_pair.first, player_resource_pair.second, 1);
 		}
 	);
+}
+
+void Game::start_next_round()
+{
+	increase_player_index();
+	int random_number { random_device.next() };
+	collect_resources(random_number);
 }
 
 void Game::move(int action)
 {
 	if (action == -1)
 	{
-		increase_player_index();
-		start_round();
+		start_next_round();
 	}
-	else if (action >= 0 && action < 54)
+	else if (action >= action_ranges.at(0).first && action < action_ranges.at(0).second)
 	{
-		build_settlement(action, current_player_index);
+		build_settlement(action - action_ranges.at(0).first, current_player_index);
 	}
-	else if (action >= 54 && action < 126)
+	else if (action >= action_ranges.at(1).first && action < action_ranges.at(1).second)
 	{
-		build_road(action - 54, current_player_index);
+		build_road(action - action_ranges.at(1).first, current_player_index);
 	}
-	else if (action >= 126 && action <= 130)
+	else if (action >= action_ranges.at(2).first && action < action_ranges.at(2).second)
 	{
-		resources::Resource resource_type { resources::Resource{ action - 126 } };
-		resources::size_type resource_amount { 4 };
-		const std::map<resources::Resource, ResourceCardDeck> to_pay { { resource_type, resource_amount } };
-
-		transfer_resources_from_player_to_bank(current_player_index, to_pay);
-
+		resources::Resource resource_type { resources::Resource { action - action_ranges.at(2).first } };
+		transfer_resources_from_player_to_bank(current_player_index, resource_type, 4);
 		temporary_actions = { 131, 132, 133, 134, 135 };
 	}
-	else if (action >= 131 && action <= 135)
+	else if (action >= action_ranges.at(3).first && action < action_ranges.at(3).second)
 	{
-		resources::Resource resource_type { action - 131 };
+		resources::Resource resource_type { action - action_ranges.at(3).first };
 		transfer_resources_from_bank_to_player(current_player_index, resource_type, 1);
 		temporary_actions.clear();
 	}
@@ -129,9 +139,11 @@ void Game::build_settlement(std::size_t intersection_index, std::size_t player_i
 	std::ranges::for_each(intersection.get_neighboring_hexes(), [this, &player_index, &hexes](std::size_t hex_index)
 		{
 			const Hex& hex { hexes.at(hex_index) };
+
 			std::ranges::for_each(hex.get_numbers(), [this, &player_index, &hex](std::size_t number)
 				{
-					settlements_by_hex_number.at(number - 2).push_back({ player_index, hex.get_type() });
+					if (hex.get_resource().has_value())
+						settlements_built_at_hex[number].push_back({ player_index, hex.get_resource().value() });
 				}
 			);
 		}
