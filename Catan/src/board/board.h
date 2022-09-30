@@ -19,7 +19,7 @@ public:
 
 	explicit Board
 	(
-		size_type nr_of_players,
+		std::size_t nr_of_players,
 		std::unordered_map<Coordinates, Hex> hex_map = Distributions::hexes,
 		HexInitializer hex_initializer = HexInitializer{}
 	);

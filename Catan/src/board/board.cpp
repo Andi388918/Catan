@@ -63,7 +63,7 @@ void Board::connect_path_to_neighboring_paths(Path& path)
 
 /* member functions */
 
-Board::Board(size_type nr_of_players, std::unordered_map<Coordinates, Hex> hex_map, HexInitializer hex_initializer)
+Board::Board(std::size_t nr_of_players, std::unordered_map<Coordinates, Hex> hex_map, HexInitializer hex_initializer)
 {
 	make_graph(hex_map);
 	hex_initializer(hexes);
@@ -137,7 +137,7 @@ void Board::make_graph(
 	);
 }
 
-void Board::build_settlement(size_type intersection_index, size_type player_index)
+void Board::build_settlement(size_type intersection_index, std::size_t player_index)
 {
 	Intersection& intersection { intersections.at(intersection_index) };
 	intersection.add_settlement(player_index);
@@ -149,13 +149,13 @@ void Board::build_settlement(size_type intersection_index, size_type player_inde
 	);
 }
 
-void Board::build_road(size_type path_index, size_type player_index)
+void Board::build_road(size_type path_index, std::size_t player_index)
 {
 	Path& path { paths.at(path_index) };
 	path.add_road(player_index);
 }
 
-void Board::build_city(size_type intersection_index, size_type player_index)
+void Board::build_city(size_type intersection_index, std::size_t player_index)
 {
 	intersections.at(intersection_index).upgrade_settlement_to_city();
 }

@@ -9,11 +9,22 @@ class ItemDeck
 public:
 	explicit ItemDeck(resources::size_type number_of_items_) : number_of_items{ number_of_items_ } { }
 
-	resources::size_type get(resources::size_type amount);
-	void add(resources::size_type amount);
+	virtual resources::size_type get(resources::size_type amount) = 0;
+	virtual void add(resources::size_type amount) = 0;
 
-private:
+	const resources::size_type& get_number_of_items() const { return number_of_items; }
+
+protected:
 	friend std::ostream& operator<<(std::ostream& os, const ItemDeck& item_deck);
 
 	resources::size_type number_of_items;
+};
+
+class ResourceCardDeck : public ItemDeck
+{
+public:
+	ResourceCardDeck(resources::size_type number_of_items = 19) : ItemDeck(number_of_items) {};
+
+	resources::size_type get(resources::size_type amount) override;
+	void add(resources::size_type amount) override;
 };

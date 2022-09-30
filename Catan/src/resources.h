@@ -1,13 +1,20 @@
 #pragma once
 
+#include <map>
+
+class ItemDeck;
+
 namespace resources
 {
 	using size_type = std::size_t;
 
-	static const std::size_t nr_of_resources { 5 };
-
 	enum class Resource
 	{
 		Brick, Lumber, Wool, Grain, Ore
+	};
+
+	class ResourceNotAvailable : public std::exception {
+	public:
+		using std::exception::exception;
 	};
 }

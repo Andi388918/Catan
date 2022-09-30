@@ -61,15 +61,21 @@ void Game::move(int action)
 	}
 	else if (action >= 126 && action <= 130)
 	{
-		players.at(current_player_index).pay(resources::Resource{ action - 126 }, 4);
-		bank.add(resources::Resource{ action - 126 }, 4);
+		resources::Resource resource_type{ resources::Resource{ action - 126 } };
+		resources::size_type resource_amount{ 4 };
+		const std::map<resources::Resource, ResourceCardDeck> to_pay { { resource_type, resource_amount } };
+
+		players.at(current_player_index).pay(to_pay);
+		bank.add(to_pay);
+
 		temporary_actions = { 131, 132, 133, 134, 135 };
 	}
 	else if (action >= 131 && action <= 135)
 	{
-		resources::Resource resource { action - 131 };
-		std::size_t received_amount{ bank.get(resource, 1) };
-		players.at(current_player_index).add_to_resources(resource, received_amount);
+		resources::Resource resource_type { action - 131 };
+		resources::size_type resource_amount{ bank.get(resource_type, 1) };
+
+		players.at(current_player_index).add_to_resources(resource_type, resource_amount);
 		temporary_actions.clear();
 	}
 }
@@ -140,6 +146,7 @@ void Game::build_road(std::size_t path_index, std::size_t player_index)
 {
 	players.at(player_index).pay(building_prices::road_price);
 	bank.add(building_prices::road_price);
+
 	board.build_road(path_index, player_index);
 
 	const std::vector<Intersection>& intersections{ board.get_intersections() };
