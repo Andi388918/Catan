@@ -155,6 +155,7 @@
     <ClCompile Include="src\board\pair.cpp" />
     <ClCompile Include="src\board\path.cpp" />
     <ClCompile Include="src\player.cpp" />
+    <ClCompile Include="src\random_device.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\bank.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="src\board\pair.h" />
     <ClInclude Include="src\board\path.h" />
     <ClInclude Include="src\player.h" />
+    <ClInclude Include="src\random_device.h" />
     <ClInclude Include="src\resources.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

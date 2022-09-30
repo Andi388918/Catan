@@ -6,6 +6,7 @@
 #include "board/distributions.hpp"
 #include "player.h"
 #include "bank.h"
+#include "random_device.h"
 
 class Game
 {
@@ -29,6 +30,8 @@ private:
 	std::vector<Player> players;
 	std::size_t current_player_index;
 
+	RandomDevice random_device;
+
 	std::vector<std::vector<bool>> buildable_settlements;
 	std::vector<std::vector<bool>> buildable_roads;
 	std::array<std::vector<std::pair<std::size_t, Hex::Type>>, 11> settlements_by_hex_number;
@@ -36,4 +39,7 @@ private:
 	std::vector<int> temporary_actions;
 
 	void start_round();
+
+	void transfer_resources_from_player_to_bank(std::size_t player_index, const std::map<resources::Resource, ResourceCardDeck>& resource_decks);
+	void transfer_resources_from_bank_to_player(std::size_t player_index, resources::Resource resource_type, resources::size_type resource_amount);
 };

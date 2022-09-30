@@ -21,7 +21,7 @@ public:
 	(
 		std::size_t nr_of_players,
 		std::unordered_map<Coordinates, Hex> hex_map = Distributions::hexes,
-		HexInitializer hex_initializer = HexInitializer{}
+		HexInitializer hex_initializer = HexInitializer {}
 	);
 
 	void build_settlement(size_type intersection_index, size_type player_index);

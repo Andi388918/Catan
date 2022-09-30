@@ -3,8 +3,6 @@
 #include "printing.h"
 #include "resources.h"
 
-#include <random>
-
 Game::Game(std::size_t nr_of_players) : board{ nr_of_players }, players { nr_of_players }, current_player_index {}
 {
 	buildable_settlements = std::vector<std::vector<bool>>(board.get_intersections().size(), std::vector<bool>(3));
@@ -19,6 +17,12 @@ Game::Game(std::size_t nr_of_players) : board{ nr_of_players }, players { nr_of_
 	build_settlement(25, 2, true);
 }
 
+void Game::increase_player_index()
+{
+	++current_player_index;
+	current_player_index %= players.size();
+}
+
 bool Game::is_finished()
 {
 	return std::ranges::any_of(players, [](const Player& player)
@@ -28,17 +32,29 @@ bool Game::is_finished()
 	);
 }
 
+void Game::transfer_resources_from_player_to_bank(std::size_t player_index, const std::map<resources::Resource, ResourceCardDeck>& resource_decks)
+{
+	players.at(player_index).pay(resource_decks);
+	bank.add(resource_decks);
+}
+
+void Game::transfer_resources_from_bank_to_player(std::size_t player_index, resources::Resource resource_type, resources::size_type resource_amount)
+{
+	resources::size_type receveived_resource_amount{ bank.get(resource_type, resource_amount) };
+	players.at(player_index).add_to_resources(resource_type, receveived_resource_amount);
+}
+
 void Game::start_round()
 {
-	static std::default_random_engine ran;
-	int random_number { std::uniform_int_distribution<>{2, 12}(ran) };
+	int random_number { random_device.next() };
 
 	std::ranges::for_each(settlements_by_hex_number.at(random_number - 2), [this](const auto& pair)
 		{
 			if (pair.second != Hex::Type::Desert)
 			{
-				std::size_t received_amount { bank.get(static_cast<resources::Resource>(pair.second), 1) };
-				players.at(pair.first).add_to_resources(static_cast<resources::Resource>(pair.second), received_amount);
+				std::size_t player_index { pair.first };
+				resources::Resource resource_type { static_cast<resources::Resource>(pair.second) };
+				transfer_resources_from_bank_to_player(player_index, resource_type, 1);
 			}
 		}
 	);
@@ -61,29 +77,20 @@ void Game::move(int action)
 	}
 	else if (action >= 126 && action <= 130)
 	{
-		resources::Resource resource_type{ resources::Resource{ action - 126 } };
-		resources::size_type resource_amount{ 4 };
+		resources::Resource resource_type { resources::Resource{ action - 126 } };
+		resources::size_type resource_amount { 4 };
 		const std::map<resources::Resource, ResourceCardDeck> to_pay { { resource_type, resource_amount } };
 
-		players.at(current_player_index).pay(to_pay);
-		bank.add(to_pay);
+		transfer_resources_from_player_to_bank(current_player_index, to_pay);
 
 		temporary_actions = { 131, 132, 133, 134, 135 };
 	}
 	else if (action >= 131 && action <= 135)
 	{
 		resources::Resource resource_type { action - 131 };
-		resources::size_type resource_amount{ bank.get(resource_type, 1) };
-
-		players.at(current_player_index).add_to_resources(resource_type, resource_amount);
+		transfer_resources_from_bank_to_player(current_player_index, resource_type, 1);
 		temporary_actions.clear();
 	}
-}
-
-void Game::increase_player_index()
-{
-	++current_player_index;
-	current_player_index %= players.size();
 }
 
 
@@ -104,8 +111,7 @@ void Game::build_settlement(std::size_t intersection_index, std::size_t player_i
 {
 	if (!free)
 	{
-		players.at(player_index).pay(building_prices::settlement_price);
-		bank.add(building_prices::settlement_price);
+		transfer_resources_from_player_to_bank(player_index, building_prices::settlement_price);
 	}
 	board.build_settlement(intersection_index, player_index);
 	players.at(player_index).add_victory_points(1);
@@ -144,8 +150,7 @@ void Game::build_settlement(std::size_t intersection_index, std::size_t player_i
 
 void Game::build_road(std::size_t path_index, std::size_t player_index)
 {
-	players.at(player_index).pay(building_prices::road_price);
-	bank.add(building_prices::road_price);
+	transfer_resources_from_player_to_bank(player_index, building_prices::road_price);
 
 	board.build_road(path_index, player_index);
 
