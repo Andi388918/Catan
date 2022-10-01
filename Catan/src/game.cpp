@@ -5,24 +5,57 @@
 
 using namespace std::placeholders;
 
+template<class ThingsToAdd, class BuildableContainer, class LookupContainer>
+void add_to_buildable_if_not_occupied(ThingsToAdd& things_to_add, BuildableContainer& buildable_container, LookupContainer& lookup_container, std::size_t player_index)
+{
+	std::ranges::for_each(things_to_add, [&buildable_container, &lookup_container, &player_index](std::size_t neighbor_index)
+		{
+			if (!lookup_container.at(neighbor_index).is_occupied())
+			{
+				buildable_container.at(neighbor_index).at(player_index) = true;
+			}
+		}
+	);
+}
+
 void Game::create_action_ranges()
 {
-	std::multimap<int, std::function<void(int)>> action_range_function_map
+	std::map<std::string, std::size_t> action_ranges_sizes
 	{
-		{ 1, std::bind(&Game::start_next_round, this, _1) },
-		{ board.get_intersections().size(), std::bind(&Game::buy_settlement, this, _1) },
-		{ board.get_paths().size(), std::bind(&Game::buy_road, this, _1) },
-		{ 5, std::bind(&Game::trade_four_for_one, this, _1) },
-		{ 5, std::bind(&Game::receive_resource_from_bank, this, _1) }
+		{ "next_round", 1 },
+		{ "settlements", board.get_intersections().size() },
+		{ "roads", board.get_paths().size()},
+		{ "trade_four_for_one", 5},
+		{ "receive_resource_from_bank", 5 }
 	};
 
-	action_ranges.reserve(action_range_function_map.size());
+	action_ranges = {};
 
-	std::ranges::for_each(action_range_function_map, 
-		[this, last = int {}](const auto& action_range_function_pair) mutable
+	make_action_functions =
+	{
+		{ "next_round", [=](auto && ...args) { return this->start_next_round(args...); }},
+		{ "settlements", [=](auto && ...args) { return this->buy_settlement(args...); }},
+		{ "roads", [=](auto && ...args) { return this->buy_road(args...); }},
+		{ "trade_four_for_one", [=](auto && ...args) { return this->trade_four_for_one(args...); }},
+		{ "receive_resource_from_bank", [=](auto && ...args) { return this->receive_resource_from_bank(args...); }}
+	};
+
+	legal_action_functions =
+	{
+		{ "next_round", [=](auto && ...args) { return this->get_next_round_action(args...); } },
+		{ "settlements", [=](auto && ...args) { return this->get_settlement_actions(args...); }},
+		{ "roads", [=](auto && ...args) { return this->get_road_actions(args...); }},
+		{ "trade_four_for_one", [=](auto && ...args) { return this->get_four_for_one_actions(args...); }}
+	};
+
+	std::ranges::for_each(make_action_functions,
+		[this, &action_ranges_sizes, lower_bound = int {}](const auto& name_function_pair) mutable
 		{
-			action_ranges.push_back(ActionRange { last, last + action_range_function_pair.first, action_range_function_pair.second });
-			last += action_range_function_pair.first;
+			std::string action_range_name { name_function_pair.first };
+			int action_range_size { static_cast<int>(action_ranges_sizes.find(action_range_name)->second) };
+
+			action_ranges.insert({ action_range_name, { lower_bound, lower_bound + action_range_size} });
+			lower_bound += action_range_size;
 		}
 	);
 }
@@ -98,20 +131,29 @@ void Game::start_next_round(int action)
 
 void Game::move(int action)
 {
-	for (auto it { action_ranges.begin() }; it != action_ranges.end(); ++it)
+	for (auto it { make_action_functions.begin() }; it != make_action_functions.end(); ++it)
 	{
-		if (action >= it->lower_bound && action < it->upper_bound)
+		const auto& bounds { action_ranges.find(it->first)->second };
+		int lower_bound = bounds.first;
+		int upper_bound = bounds.second;
+
+		if (action >= lower_bound && action < upper_bound)
 		{
-			it->function(action - it->lower_bound);
+			it->second(action - lower_bound);
 		}
 	}
 }
 
 void Game::trade_four_for_one(int action)
 {
-	resources::Resource resource_type{ resources::Resource { action } };
+	resources::Resource resource_type { resources::Resource { action } };
 	transfer_resources_from_player_to_bank(current_player_index, resource_type, 4);
-	temporary_actions = { 131, 132, 133, 134, 135 };
+
+	const auto& bounds { action_ranges.find("receive_resource_from_bank")->second };
+	int lower_bound = bounds.first;
+	int upper_bound = bounds.second;
+
+	for (int i = lower_bound; i < upper_bound; ++i) temporary_actions.push_back(i);
 }
 
 void Game::receive_resource_from_bank(int action)
@@ -119,19 +161,6 @@ void Game::receive_resource_from_bank(int action)
 	resources::Resource resource_type { action };
 	transfer_resources_from_bank_to_player(current_player_index, resource_type, 1);
 	temporary_actions.clear();
-}
-
-template<class ThingsToAdd, class BuildableContainer, class LookupContainer>
-void add_to_buildable_if_not_occupied(ThingsToAdd& things_to_add, BuildableContainer& buildable_container, LookupContainer& lookup_container, std::size_t player_index)
-{
-	std::ranges::for_each(things_to_add, [&buildable_container, &lookup_container, &player_index](std::size_t neighbor_index)
-		{
-			if (!lookup_container.at(neighbor_index).is_occupied())
-			{
-				buildable_container.at(neighbor_index).at(player_index) = true;
-			}
-		}
-	);
 }
 
 void Game::buy_settlement(std::size_t intersection_index)
@@ -144,6 +173,65 @@ void Game::buy_road(std::size_t path_index)
 {
 	transfer_resources_from_player_to_bank(current_player_index, building_prices::road_price);
 	build_road(path_index);
+}
+
+std::vector<int> Game::get_next_round_action()
+{
+	return { 0 };
+}
+
+std::vector<int> get_actions_from_buildable(const std::vector<std::vector<bool>>& buildable, std::size_t player_index, int offset)
+{
+	std::vector<int> actions;
+
+	std::ranges::for_each(buildable, [&player_index, &actions, &offset, i = std::size_t{}](const std::vector<bool>& v) mutable
+	{
+		if (v.at(player_index))
+		{
+			actions.push_back(i + offset);
+		}
+		++i;
+	}
+	);
+	return actions;
+}
+
+std::vector<int> Game::get_settlement_actions()
+{
+	if (building_prices::can_be_bought_with(building_prices::settlement_price, players.at(current_player_index).get_resources()))
+	{
+		int offset { action_ranges.find("settlements")->second.first };
+		return get_actions_from_buildable(buildable_settlements, current_player_index, offset);
+	}
+
+	return {};
+}
+
+std::vector<int> Game::get_road_actions()
+{
+	if (building_prices::can_be_bought_with(building_prices::road_price, players.at(current_player_index).get_resources()))
+	{
+		int offset { action_ranges.find("roads")->second.first };
+		return get_actions_from_buildable(buildable_roads, current_player_index, offset);
+	}
+
+	return {};
+}
+
+std::vector<int> Game::get_four_for_one_actions()
+{
+	int offset { action_ranges.find("trade_four_for_one")->second.first };
+
+	std::vector<int> actions;
+	std::vector<resources::Resource> four_to_one_tradable_resources { building_prices::four_to_one_tradable_resources(players.at(current_player_index).get_resources()) };
+
+	std::ranges::for_each(four_to_one_tradable_resources, [&actions, &offset](const resources::Resource& resource)
+		{
+			actions.push_back(static_cast<int>(resource) + offset);
+		}
+	);
+
+	return actions;
 }
 
 void Game::build_settlement(std::size_t intersection_index)
@@ -202,58 +290,25 @@ void Game::build_road(std::size_t path_index)
 	add_to_buildable_if_not_occupied(path.get_neighboring_intersections(), buildable_settlements, intersections, current_player_index);
 }
 
-std::vector<int> get_actions_from_buildable(const std::vector<std::vector<bool>>& buildable, std::size_t player_index, int offset)
-{
-	std::vector<int> actions;
-
-	std::ranges::for_each(buildable, [&player_index, &actions, &offset, i = std::size_t{}](const std::vector<bool>& v) mutable
-		{
-			if (v.at(player_index))
-			{
-				actions.push_back(i + offset);
-			}
-			++i;
-		}
-	);
-	return actions;
-}
-
 std::vector<int> Game::get_legal_actions()
 {
 	if (temporary_actions.size() > 0)
 		return temporary_actions;
 
 	std::vector<int> legal_actions;
+	legal_actions.reserve(100);
 
-	legal_actions.push_back(-1);
-
-	if (building_prices::can_be_bought_with(building_prices::settlement_price, players.at(current_player_index).get_resources()))
+	for (auto it { legal_action_functions.begin() }; it != legal_action_functions.end(); ++it)
 	{
-		std::vector<int> actions_settlements = get_actions_from_buildable(buildable_settlements, current_player_index, 0);
-		legal_actions.insert(legal_actions.end(), actions_settlements.begin(), actions_settlements.end());
+		std::vector<int> actions { it->second() };
+		legal_actions.insert(legal_actions.end(), actions.begin(), actions.end());
 	}
-
-	if (building_prices::can_be_bought_with(building_prices::road_price, players.at(current_player_index).get_resources()))
-	{
-		std::vector<int> actions_roads = get_actions_from_buildable(buildable_roads, current_player_index, 54);
-		legal_actions.insert(legal_actions.end(), actions_roads.begin(), actions_roads.end());
-	}
-
-	std::vector<resources::Resource> four_to_one_tradable_resources { building_prices::four_to_one_tradable_resources(players.at(current_player_index).get_resources()) };
-
-	if (four_to_one_tradable_resources.size() > 0)
-	{
-		std::ranges::for_each(four_to_one_tradable_resources, [&legal_actions](const resources::Resource& resource)
-			{
-				legal_actions.push_back(static_cast<std::size_t>(resource) + 126);
-			}
-		);
-	}
-
 	/*
-	print(legal_actions);
 	std::cout << std::endl << "player " << current_player_index << ": ";
-	print(players.at(current_player_index).get_resources());
+	print_resources(players.at(current_player_index).get_resources());
+	std::cout << "actions: ";
+	print(legal_actions);
+	std::cout << "victory points: " << players.at(current_player_index).get_victory_points() << std::endl;
 	std::cout << players.at(current_player_index).get_victory_points() << std::endl;
 	std::cout << "bank: ";
 	print(bank.get_resource_amounts());

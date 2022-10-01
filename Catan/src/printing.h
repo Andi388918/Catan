@@ -19,3 +19,20 @@ void print(C& c)
     );
     std::cout << "]" << std::endl;
 }
+
+template<class C>
+void print_resources(C& c)
+{
+    std::cout << "[";
+    std::ranges::for_each(c, [i = std::size_t{}, &c](const auto& e) mutable
+    {
+        std::cout << e.second;
+        if (i < c.size() - 1)
+        {
+            std::cout << ", ";
+        }
+        ++i;
+    }
+    );
+    std::cout << "]" << std::endl;
+}
