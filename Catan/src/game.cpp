@@ -34,8 +34,8 @@ void Game::create_action_ranges()
 	make_action_functions =
 	{
 		{ "next_round", [=](auto && ...args) { return this->start_next_round(args...); }},
-		{ "settlements", [=](auto && ...args) { return this->buy_settlement(args...); }},
-		{ "roads", [=](auto && ...args) { return this->buy_road(args...); }},
+		{ "settlements", [=](auto && ...args) { return this->buy_and_build_settlement(args...); }},
+		{ "roads", [=](auto && ...args) { return this->buy_and_build_road(args...); }},
 		{ "trade_four_for_one", [=](auto && ...args) { return this->trade_four_for_one(args...); }},
 		{ "receive_resource_from_bank", [=](auto && ...args) { return this->receive_resource_from_bank(args...); }}
 	};
@@ -166,13 +166,13 @@ void Game::receive_resource_from_bank(int action)
 	temporary_actions.clear();
 }
 
-void Game::buy_settlement(std::size_t intersection_index)
+void Game::buy_and_build_settlement(std::size_t intersection_index)
 {
 	transfer_resources_from_player_to_bank(current_player_index, building_prices::settlement_price);
 	build_settlement(intersection_index);
 }
 
-void Game::buy_road(std::size_t path_index)
+void Game::buy_and_build_road(std::size_t path_index)
 {
 	transfer_resources_from_player_to_bank(current_player_index, building_prices::road_price);
 	build_road(path_index);

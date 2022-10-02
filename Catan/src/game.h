@@ -52,8 +52,8 @@ private:
 	void trade_four_for_one(int action);
 	void receive_resource_from_bank(int action);
 
-	void buy_settlement(std::size_t intersection_index);
-	void buy_road(std::size_t path_index);
+	void buy_and_build_settlement(std::size_t intersection_index);
+	void buy_and_build_road(std::size_t path_index);
 	void build_settlement(std::size_t intersection_index);
 	void build_road(std::size_t path_index);
 
