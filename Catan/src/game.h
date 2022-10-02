@@ -57,9 +57,9 @@ private:
 	void build_settlement(std::size_t intersection_index);
 	void build_road(std::size_t path_index);
 
-	void transfer_resources_from_player_to_bank(std::size_t player_index, const std::map<resources::Resource, ResourceCardDeck>& resource_decks);
-	void transfer_resources_from_player_to_bank(std::size_t player_index, resources::Resource resource_type, resources::size_type resource_amount);
-	void transfer_resources_from_bank_to_player(std::size_t player_index, resources::Resource resource_type, resources::size_type resource_amount);
+	void transfer_resources_from_player_to_bank(std::size_t player_index, const std::array<ResourceCardDeck, 5>& resource_decks);
+	void transfer_resources_from_player_to_bank(std::size_t player_index, const resources::Resource& resource_type, resources::size_type resource_amount);
+	void transfer_resources_from_bank_to_player(std::size_t player_index, const resources::Resource& resource_type, resources::size_type resource_amount);
 
 	std::vector<int> get_next_round_action();
 	std::vector<int> get_settlement_actions();

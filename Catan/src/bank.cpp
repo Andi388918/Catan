@@ -3,71 +3,43 @@
 
 namespace building_prices
 {
-	bool can_be_bought_with(const std::map<resources::Resource, ResourceCardDeck>& what, const std::map<resources::Resource, ResourceCardDeck>& with)
+	bool can_be_bought_with(const std::array<ResourceCardDeck, 5>& what, const std::array<ResourceCardDeck, 5>& with)
 	{
-		return std::ranges::all_of(what, [&with](const auto& resource_deck_pair)
+		for (std::size_t i = 0; i < what.size(); ++i)
+		{
+			if (what.at(i) > with.at(i)) return false;
+		}
+		return true;
+	}
+
+	std::vector<int> four_for_one_tradable_indices(const std::array<ResourceCardDeck, 5>& resource_decks, int offset)
+	{
+		std::vector<int> four_for_one_tradable_indices;
+		four_for_one_tradable_indices.reserve(5);
+
+		std::ranges::for_each(resource_decks, [&offset, &four_for_one_tradable_indices, i = int {}](const ResourceCardDeck& resource_card_deck)
 			{
-				auto iterator { with.find(resource_deck_pair.first) };
-
-				if (iterator != std::cend(with))
-				{
-					resources::size_type available_resource_amount { iterator->second.get_number_of_items() };
-					resources::size_type price_resource_amount { resource_deck_pair.second.get_number_of_items() };
-
-					return available_resource_amount >= price_resource_amount;
-				}
-
-				throw resources::ResourceNotAvailable {"resource not found in available resources"};
+				if (resource_card_deck.get_number_of_items() >= 4) four_for_one_tradable_indices.push_back(i + offset);
 			}
 		);
-	}
-	std::vector<resources::Resource> four_to_one_tradable_resources(const std::map<resources::Resource, ResourceCardDeck>& resource_decks)
-	{
-		std::vector<resources::Resource> four_to_one_tradable_resources;
 
-		std::ranges::for_each(resource_decks, [&four_to_one_tradable_resources](const auto& resource_deck_pair)
-		{
-			resources::Resource resource_type { resource_deck_pair.first };
-			resources::size_type resource_amount { resource_deck_pair.second.get_number_of_items() };
-
-			if (resource_amount >= 4)
-				four_to_one_tradable_resources.push_back(resource_type);
-		}
-		);
-
-		return four_to_one_tradable_resources;
+		return four_for_one_tradable_indices;
 	}
 }
 
-resources::size_type Bank::get(resources::Resource resource_type, resources::size_type resource_amount)
+resources::size_type Bank::get(const resources::Resource& resource_type, resources::size_type resource_amount)
 {
-	auto iterator { resource_decks.find(resource_type) };
-
-	if (iterator != std::end(resource_decks))
-	{
-		return iterator->second.get(resource_amount);
-	}
-
-	throw resources::ResourceNotAvailable {};
+	std::size_t index { static_cast<std::size_t>(resource_type) };
+	return resource_decks.at(index).get(resource_amount);
 }
 
-void Bank::add(const std::map<resources::Resource, ResourceCardDeck>& resource_decks_)
+void Bank::add(const std::array<ResourceCardDeck, 5>& resource_decks_)
 {
-	std::ranges::for_each(resource_decks_, [this](const auto& resource_deck_pair)
-		{
-			resources::Resource resource_type { resource_deck_pair.first };
-			resources::size_type resource_amount { resource_deck_pair.second.get_number_of_items() };
+	resource_decks += resource_decks_;
+}
 
-			auto iterator { resource_decks.find(resource_type) };
-
-			if (iterator != std::end(resource_decks))
-			{
-				iterator->second.add(resource_amount);
-			}
-			else
-			{
-				throw resources::ResourceNotAvailable{};
-			}
-		}
-	);
+void Bank::add(const resources::Resource& resource_type, resources::size_type resource_amount)
+{
+	std::size_t index { static_cast<std::size_t>(resource_type) };
+	resource_decks.at(index).add(resource_amount);
 }

@@ -57,6 +57,9 @@
     <ClCompile Include="src\random_device.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\agent.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\board\board.h">
@@ -102,6 +105,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\random_device.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\agent.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

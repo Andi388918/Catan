@@ -20,6 +20,8 @@ void add_to_buildable_if_not_occupied(ThingsToAdd& things_to_add, BuildableConta
 
 void Game::create_action_ranges()
 {
+	action_ranges = {};
+
 	std::map<std::string, std::size_t> action_ranges_sizes
 	{
 		{ "next_round", 1 },
@@ -28,8 +30,6 @@ void Game::create_action_ranges()
 		{ "trade_four_for_one", 5},
 		{ "receive_resource_from_bank", 5 }
 	};
-
-	action_ranges = {};
 
 	make_action_functions =
 	{
@@ -96,28 +96,31 @@ bool Game::is_finished()
 	);
 }
 
-void Game::transfer_resources_from_player_to_bank(std::size_t player_index, const std::map<resources::Resource, ResourceCardDeck>& resource_decks)
+void Game::transfer_resources_from_player_to_bank(std::size_t player_index, const std::array<ResourceCardDeck, 5>& resource_decks)
 {
 	players.at(player_index).pay(resource_decks);
 	bank.add(resource_decks);
 }
 
-void Game::transfer_resources_from_bank_to_player(std::size_t player_index, resources::Resource resource_type, resources::size_type resource_amount)
+void Game::transfer_resources_from_bank_to_player(std::size_t player_index, const resources::Resource& resource_type, resources::size_type resource_amount)
 {
-	resources::size_type receveived_resource_amount{ bank.get(resource_type, resource_amount) };
+	resources::size_type receveived_resource_amount { bank.get(resource_type, resource_amount) };
 	players.at(player_index).add_to_resources(resource_type, receveived_resource_amount);
 }
 
-void Game::transfer_resources_from_player_to_bank(std::size_t player_index, resources::Resource resource_type, resources::size_type resource_amount)
+void Game::transfer_resources_from_player_to_bank(std::size_t player_index, const resources::Resource& resource_type, resources::size_type resource_amount)
 {
-	transfer_resources_from_player_to_bank(player_index, {{resource_type, resource_amount}});
+	players.at(player_index).pay(resource_type, resource_amount);
+	bank.add(resource_type, resource_amount);
 }
 
 void Game::collect_resources(int number)
 {
 	std::ranges::for_each(settlements_built_at_hex[number], [this](const std::pair<std::size_t, resources::Resource>& player_resource_pair)
 		{
-			transfer_resources_from_bank_to_player(player_resource_pair.first, player_resource_pair.second, 1);
+			std::size_t player_index { player_resource_pair.first };
+			resources::Resource resource_type { player_resource_pair.second };
+			transfer_resources_from_bank_to_player(player_index, resource_type, 1);
 		}
 	);
 }
@@ -149,7 +152,7 @@ void Game::trade_four_for_one(int action)
 	resources::Resource resource_type { resources::Resource { action } };
 	transfer_resources_from_player_to_bank(current_player_index, resource_type, 4);
 
-	const auto& bounds { action_ranges.find("receive_resource_from_bank")->second };
+	const std::pair<int, int>& bounds { action_ranges.find("receive_resource_from_bank")->second };
 	int lower_bound = bounds.first;
 	int upper_bound = bounds.second;
 
@@ -177,7 +180,9 @@ void Game::buy_road(std::size_t path_index)
 
 std::vector<int> Game::get_next_round_action()
 {
-	return { 0 };
+	const std::pair<int, int>& bounds { action_ranges.find("receive_resource_from_bank")->second };
+	int lower_bound = bounds.first;
+	return { lower_bound };
 }
 
 std::vector<int> get_actions_from_buildable(const std::vector<std::vector<bool>>& buildable, std::size_t player_index, int offset)
@@ -221,17 +226,7 @@ std::vector<int> Game::get_road_actions()
 std::vector<int> Game::get_four_for_one_actions()
 {
 	int offset { action_ranges.find("trade_four_for_one")->second.first };
-
-	std::vector<int> actions;
-	std::vector<resources::Resource> four_to_one_tradable_resources { building_prices::four_to_one_tradable_resources(players.at(current_player_index).get_resources()) };
-
-	std::ranges::for_each(four_to_one_tradable_resources, [&actions, &offset](const resources::Resource& resource)
-		{
-			actions.push_back(static_cast<int>(resource) + offset);
-		}
-	);
-
-	return actions;
+	return building_prices::four_for_one_tradable_indices(players.at(current_player_index).get_resources(), offset);
 }
 
 void Game::build_settlement(std::size_t intersection_index)
@@ -303,6 +298,15 @@ std::vector<int> Game::get_legal_actions()
 		std::vector<int> actions { it->second() };
 		legal_actions.insert(legal_actions.end(), actions.begin(), actions.end());
 	}
+
+	/*
+	std::cout << std::endl << "player " << current_player_index << ":" << std::endl;
+	std::cout << "resources: ";
+	print(players.at(current_player_index).get_resources());
+	std::cout << "bank: ";
+	print(bank.get_resource_amounts());
+	*/
+
 	/*
 	std::cout << std::endl << "player " << current_player_index << ": ";
 	print_resources(players.at(current_player_index).get_resources());

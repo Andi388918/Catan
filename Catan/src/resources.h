@@ -12,9 +12,4 @@ namespace resources
 	{
 		Brick, Lumber, Wool, Grain, Ore
 	};
-
-	class ResourceNotAvailable : public std::exception {
-	public:
-		using std::exception::exception;
-	};
 }

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <map>
 #include <algorithm>
-#include <assert.h>
 #include <exception>
+#include <array>
+#include <vector>
+#include <iterator>
 
 #include "resources.h"
 #include "item_deck.h"
@@ -11,43 +12,39 @@
 class Bank
 {
 public:
-	Bank
-	(
-		std::map<resources::Resource, ResourceCardDeck> resource_decks =
-		{
-			{ resources::Resource::Brick, 19 },
-			{ resources::Resource::Lumber, 19 },
-			{ resources::Resource::Wool, 19 },
-			{ resources::Resource::Grain, 19 },
-			{ resources::Resource::Ore, 19 }
-		}
-	) : resource_decks { resource_decks } {}
+	Bank() : resource_decks { 19, 19, 19, 19, 19 } {}
 
-	resources::size_type get(resources::Resource resource_type, resources::size_type resource_amount);
-	void add(const std::map<resources::Resource, ResourceCardDeck>& resource_decks_);
+	resources::size_type get(const resources::Resource& resource_type, resources::size_type resource_amount);
+	void add(const std::array<ResourceCardDeck, 5>& resource_decks_);
+	void add(const resources::Resource& resource_type, resources::size_type resource_amount);
 
-	std::map<resources::Resource, ResourceCardDeck>& get_resource_amounts() { return resource_decks; }
+	const std::array<ResourceCardDeck, 5>& get_resource_amounts() const { return resource_decks; }
 
 private:
-	std::map<resources::Resource, ResourceCardDeck> resource_decks;
+	std::array<ResourceCardDeck, 5> resource_decks;
 };
 
 namespace building_prices
 {
-	static const std::map<resources::Resource, ResourceCardDeck> settlement_price
-	{ 
-		{ resources::Resource::Brick, 1 },
-		{ resources::Resource::Lumber, 1 },
-		{ resources::Resource::Wool, 1 },
-		{ resources::Resource::Grain, 1 }
-	};
+	static const std::array<ResourceCardDeck, 5> settlement_price { 1, 1, 1, 1, 0 };
+	static const std::array<ResourceCardDeck, 5> road_price { 1, 1, 0, 0, 0 };
 
-	static const std::map<resources::Resource, ResourceCardDeck> road_price
-	{
-		{ resources::Resource::Brick, 1 },
-		{ resources::Resource::Lumber, 1 }
-	};
+	bool can_be_bought_with(const std::array<ResourceCardDeck, 5>& what, const std::array<ResourceCardDeck, 5>& with);
+	std::vector<int> four_for_one_tradable_indices(const std::array<ResourceCardDeck, 5>& resource_decks, int offset = 0);
+}
 
-	bool can_be_bought_with(const std::map<resources::Resource, ResourceCardDeck>& what, const std::map<resources::Resource, ResourceCardDeck>& with);
-	std::vector<resources::Resource> four_to_one_tradable_resources(const std::map<resources::Resource, ResourceCardDeck>& resource_decks);
+/* array operators */
+
+template<typename T, std::size_t N>
+std::array<T, N>& operator+=(std::array<T, N>& lhs, const std::array<T, N>& rhs) {
+	for (std::size_t i = 0; i < N; ++i)
+		lhs.at(i) += rhs.at(i);
+	return lhs;
+}
+
+template<typename T, std::size_t N>
+std::array<T, N>& operator-=(std::array<T, N>& lhs, const std::array<T, N>& rhs) {
+	for (std::size_t i = 0; i < N; ++i)
+		lhs.at(i) -= rhs.at(i);
+	return lhs;
 }
